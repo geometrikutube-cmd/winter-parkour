@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Winter Block Parkour</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#9edcff;font-family:Arial,sans-serif}
+#ui{position:fixed;inset:0;pointer-events:none;color:#fff;text-shadow:0 2px 4px #245}
+#title{position:absolute;top:16px;left:18px;font-size:24px;font-weight:800}
+#stats{position:absolute;top:52px;left:18px;font-size:15px}
+#help{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#123a55aa;padding:9px 14px;border-radius:12px;font-size:13px}
+#touch{position:fixed;bottom:22px;right:22px;display:none;gap:10px;pointer-events:auto}
+button{border:0;border-radius:16px;background:#ffffffbb;color:#17364a;font-weight:800;font-size:18px;padding:15px 19px}
+@media(max-width:700px){#touch{display:flex}#help{display:none}}
+</style>
+</head>
+<body>
+<div id="ui">
+  <div id="title">❄ WINTER BLOCK PARKOUR</div>
+  <div id="stats">Монеты: <span id="coins">0</span> · Время: <span id="time">0.0</span></div>
+  <div id="help">WASD / стрелки — движение · Space — прыжок · R — рестарт</div>
+</div>
+<div id="touch"><button id="left">←</button><button id="jump">↑</button><button id="right">→</button></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9edcff);
+scene.fog=new THREE.Fog(0x9edcff,25,105);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true; document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xeaf8ff,0x7896a8,2.2));
+const sun=new THREE.DirectionalLight(0xffffff,2.4); sun.position.set(-15,30,10); sun.castShadow=true; scene.add(sun);
+
+const mats={
+snow:new THREE.MeshStandardMaterial({color:0xf4fbff,roughness:1}),
+ice:new THREE.MeshStandardMaterial({color:0x74c9ef,roughness:.35,metalness:.05}),
+blue:new THREE.MeshStandardMaterial({color:0x2877c8,roughness:.65}),
+dark:new THREE.MeshStandardMaterial({color:0x183c62,roughness:.8}),
+gold:new THREE.MeshStandardMaterial({color:0xffd34d,emissive:0x5b3e00,emissiveIntensity:.25}),
+red:new THREE.MeshStandardMaterial({color:0xff5964,roughness:.7})
+};
+function box(x,y,z,sx,sy,sz,mat=mats.snow){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m;
+}
+function coin(x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.12,24),mats.gold);m.rotation.x=Math.PI/2;m.position.set(x,y,z);m.userData.coin=true;scene.add(m);return m}
+function tree(x,z){
+ box(x,2,z,1.1,4,1.1,mats.dark); box(x,4.4,z,3.3,2.8,3.3,mats.blue); box(x,6,z,2.4,2.2,2.4,mats.snow);
+}
+for(let i=0;i<34;i++){let x=(Math.random()-.5)*70,z=8-Math.random()*110;if(Math.abs(x)<7) x+=x<0?-12:12;tree(x,z)}
+// Course
+const platforms=[];
+function platform(x,y,z,w,d,h=.8,mat=mats.snow){const p=box(x,y,z,w,h,d,mat);platforms.push(p);return p}
+platform(0,0,2,10,8);
+platform(0,0,-6,7,7);
+platform(4,1,-15,6,6,mats.ice);
+platform(-2,2,-24,5,6);
+platform(3,3,-33,6,5,mats.snow);
+platform(-3,4,-42,5,6,mats.ice);
+platform(2,5,-52,7,7);
+platform(0,6,-63,9,8,mats.snow);
+// hazards / blocks
+platform(0,1,-10,2,1,1.5,mats.red);
+platform(4,2,-19,2,2,1.4,mats.red);
+platform(-2,3,-28,1.6,3,1.8,mats.red);
+platform(3,4,-37,2,1.5,1.8,mats.red);
+platform(-3,5,-47,1.5,2,1.8,mats.red);
+// coins
+[[0,1,-4],[4,2,-14],[-2,3,-23],[3,4,-32],[-3,5,-41],[2,6,-51],[0,7,-61]].forEach(a=>coin(...a));
+
+// player
+const player=new THREE.Group();
+const body=box(0,1.05,2,1.1,1.5,.75,mats.blue);
+body.parent=null; scene.remove(body); player.add(body);
+const head=box(0,2.15,2,.9,.9,.9,mats.snow);head.parent=null;scene.remove(head);player.add(head);
+player.position.set(0,0,2);scene.add(player);
+
+let velY=0,onGround=false,coins=0,start=performance.now(),finished=false;
+const keys={};
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space')keys.space=true;if(e.key.toLowerCase()==='r')location.reload()});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;if(e.code==='Space')keys.space=false});
+function touch(btn,key){btn.addEventListener('touchstart',e=>{e.preventDefault();keys[key]=true});btn.addEventListener('touchend',e=>{e.preventDefault();keys[key]=false})}
+touch(document.getElementById('left'),'a');touch(document.getElementById('right'),'d');touch(document.getElementById('jump'),'space');
+
+const clock=new THREE.Clock();
+function update(){
+ if(finished)return;
+ const dt=Math.min(clock.getDelta(),.033);
+ let dx=0,dz=0;
+ if(keys.a||keys.arrowleft)dx-=1;if(keys.d||keys.arrowright)dx+=1;
+ if(keys.w||keys.arrowup)dz-=1;if(keys.s||keys.arrowdown)dz+=1;
+ const speed=7;
+ player.position.x+=dx*speed*dt;
+ player.position.z+=dz*speed*dt;
+ if(keys.space&&onGround){velY=8.5;onGround=false}
+ velY-=22*dt; player.position.y+=velY*dt;
+ onGround=false;
+ // simple collision with course top surfaces
+ for(const p of platforms){
+   const hw=p.geometry.parameters.width/2, hd=p.geometry.parameters.depth/2;
+   const top=p.position.y+p.geometry.parameters.height/2;
+   if(player.position.x>p.position.x-hw-.45&&player.position.x<p.position.x+hw+.45&&
+      player.position.z>p.position.z-hd-.45&&player.position.z<p.position.z+hd+.45&&
+      player.position.y<=top+.2&&player.position.y>=top-1.2&&velY<=0){
+        player.position.y=top;velY=0;onGround=true;
+   }
+ }
+ if(player.position.y<-8||Math.abs(player.position.x)>30){location.reload()}
+ for(const o of scene.children){
+   if(o.userData.coin&&!o.userData.taken){
+     o.rotation.z+=dt*5;
+     if(o.position.distanceTo(player.position)<1.3){o.userData.taken=true;o.visible=false;coins++;document.getElementById('coins').textContent=coins}
+   }
+ }
+ if(player.position.z<-61&&player.position.y>6.2){
+   finished=true; alert('Финиш! Монеты: '+coins);
+ }
+ camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+6,player.position.z+11),.08);
+ camera.lookAt(player.position.x,player.position.y+1,player.position.z-7);
+ document.getElementById('time').textContent=((performance.now()-start)/1000).toFixed(1);
+}
+function loop(){requestAnimationFrame(loop);update();renderer.render(scene,camera)} loop();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
