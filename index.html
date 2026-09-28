@@ -235,11 +235,11 @@ canvas {
 <div id="ui">
     <div id="top">
         <div class="uiBox">
-            <div id="coinsUI">❄️ Монеты: 0</div>
-            <div id="distanceUI">Дистанция: 0 м</div>
-            <div id="levelUI">Уровень: 1</div>
+            <div id="coinsUI">âï¸ ÐÐ¾Ð½ÐµÑÑ: 0</div>
+            <div id="distanceUI">ÐÐ¸ÑÑÐ°Ð½ÑÐ¸Ñ: 0 Ð¼</div>
+            <div id="levelUI">Ð£ÑÐ¾Ð²ÐµÐ½Ñ: 1</div>
         </div>
-<button class="musicButton" id="musicButton">🔇 Музыка</button>
+<button class="musicButton" id="musicButton">ð ÐÑÐ·ÑÐºÐ°</button>
     <div class="uiBox" id="titleUI">
         WINTER BLOCK PARKOUR
     </div>
@@ -248,13 +248,13 @@ canvas {
 </div>
 
 <div id="help">
-    ← → / A D — движение &nbsp; • &nbsp; SPACE — прыжок
+    â â / A D â Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ðµ &nbsp; â¢ &nbsp; SPACE â Ð¿ÑÑÐ¶Ð¾Ðº
 </div>
 
 <div id="controls">
     <div class="controlSide">
-        <button class="controlButton" id="leftButton">◀</button>
-        <button class="controlButton" id="rightButton">▶</button>
+        <button class="controlButton" id="leftButton">â</button>
+        <button class="controlButton" id="rightButton">â¶</button>
     </div>
 
 <div class="controlSide">
@@ -264,9 +264,9 @@ canvas {
 </div>
 
 <div id="message">
-    <h1 id="messageTitle">Финиш!</h1>
+    <h1 id="messageTitle">Ð¤Ð¸Ð½Ð¸Ñ!</h1>
     <p id="messageText"></p>
-    <button id="restartButton">Играть снова</button>
+    <button id="restartButton">ÐÐ³ÑÐ°ÑÑ ÑÐ½Ð¾Ð²Ð°</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -349,14 +349,14 @@ const musicButton = document.getElementById("musicButton");
     if (musicEnabled) {
 
         musicButton.textContent =
-            "🔊 Музыка";
+            "ð ÐÑÐ·ÑÐºÐ°";
 
         startMusic();
 
     } else {
 
         musicButton.textContent =
-            "🔇 Музыка";
+            "ð ÐÑÐ·ÑÐºÐ°";
 
         stopMusic();
     }
@@ -366,7 +366,7 @@ const musicButton = document.getElementById("musicButton");
 if (musicEnabled) {
 
     musicButton.textContent =
-        "🔊 Музыка";
+        "ð ÐÑÐ·ÑÐºÐ°";
 
     document.addEventListener(
         "pointerdown",
@@ -1425,7 +1425,7 @@ function createSnowMountain(x, y, z, scaleX, scaleY, scaleZ) {
 }
 
 
-/* ДАЛЬНИЕ СНЕЖНЫЕ ГОРЫ */
+/* ÐÐÐÐ¬ÐÐÐ Ð¡ÐÐÐÐÐ«Ð ÐÐÐ Ð« */
 
 createSnowMountain(-13, 6, -35, 7, 7, 5);
 createSnowMountain(13, 7, -45, 8, 8, 6);
@@ -1436,7 +1436,7 @@ createSnowMountain(15, 11, -120, 12, 12, 10);
 createSnowMountain(-16, 12, -143, 13, 13, 11);
 
 
-/* ЁЛКИ */
+/* ÐÐÐÐ */
 
 createTree(-7, 0, 0, 1.15);
 createTree(7, 0, -3, 1.2);
@@ -1460,7 +1460,7 @@ createTree(-8, 12, -138, 1.35);
 createTree(8, 13, -147, 1.5);
 
 
-/* СНЕЖНЫЕ ХОЛМЫ ПО БОКАМ */
+/* Ð¡ÐÐÐÐÐ«Ð Ð¥ÐÐÐÐ« ÐÐ ÐÐÐÐÐ */
 
 function createSnowHill(x, y, z, scale) {
 
@@ -1855,41 +1855,25 @@ rightBoot.position.set(
 
 rightLegPivot.add(rightBoot);
 
-/* BOOTS */
+/* =========================================================
+   Ð¡ÐÐÐÐÐ«Ð ÐÐÐ
+   ========================================================= */
 
-const leftBoot =
-    box(
-        0.32,
-        0.22,
-        0.42,
-        mats.black
-    );
+const floorMaterial = new THREE.MeshStandardMaterial({
+    color: 0xeaf7ff,
+    roughness: 0.92,
+    metalness: 0.02
+});
 
-leftBoot.position.set(
-    -0.22,
-    -1.1,
-    -0.04
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(36, 360),
+    floorMaterial
 );
 
-player.add(leftBoot);
-
-
-const rightBoot =
-    box(
-        0.32,
-        0.22,
-        0.42,
-        mats.black
-    );
-
-rightBoot.position.set(
-    0.22,
-    -1.1,
-    -0.04
-);
-
-player.add(rightBoot);
-
+floor.rotation.x = -Math.PI / 2;
+floor.position.set(0, -0.48, -170);
+floor.receiveShadow = true;
+scene.add(floor);
 
 /* =========================================================
    PLAYER STATE
@@ -2682,7 +2666,7 @@ function updatePlayer(
     ) {
 
         showGameOver(
-            "Ты упал!"
+            "Ð¢Ñ ÑÐ¿Ð°Ð»!"
         );
 
         return;
@@ -2696,7 +2680,7 @@ function updatePlayer(
     ) {
 
         showGameOver(
-            "Ой! Препятствие!"
+            "ÐÐ¹! ÐÑÐµÐ¿ÑÑÑÑÐ²Ð¸Ðµ!"
         );
 
         return;
@@ -2845,7 +2829,7 @@ function updateUI() {
     document.getElementById(
         "coinsUI"
     ).textContent =
-        "❄️ Монеты: " +
+        "âï¸ ÐÐ¾Ð½ÐµÑÑ: " +
         coinCount;
 
     const distance =
@@ -2860,9 +2844,9 @@ function updateUI() {
     document.getElementById(
         "distanceUI"
     ).textContent =
-        "Дистанция: " +
+        "ÐÐ¸ÑÑÐ°Ð½ÑÐ¸Ñ: " +
         distance +
-        " м";
+        " Ð¼";
 
     let level = 1;
 
@@ -2875,7 +2859,7 @@ function updateUI() {
     document.getElementById(
         "levelUI"
     ).textContent =
-        "Уровень: " +
+        "Ð£ÑÐ¾Ð²ÐµÐ½Ñ: " +
         level;
 }
 
@@ -2899,13 +2883,13 @@ function showGameOver(
     document.getElementById(
         "messageTitle"
     ).textContent =
-        "Игра окончена";
+        "ÐÐ³ÑÐ° Ð¾ÐºÐ¾Ð½ÑÐµÐ½Ð°";
 
     document.getElementById(
         "messageText"
     ).textContent =
         text +
-        " Монеты: " +
+        " ÐÐ¾Ð½ÐµÑÑ: " +
         coinCount;
 
     document.getElementById(
@@ -2933,16 +2917,16 @@ function finishGame() {
     document.getElementById(
         "messageTitle"
     ).textContent =
-        "🏆 Финиш!";
+        "ð Ð¤Ð¸Ð½Ð¸Ñ!";
 
     document.getElementById(
         "messageText"
     ).textContent =
-        "Ты прошёл зимний паркур и собрал " +
+        "Ð¢Ñ Ð¿ÑÐ¾ÑÑÐ» Ð·Ð¸Ð¼Ð½Ð¸Ð¹ Ð¿Ð°ÑÐºÑÑ Ð¸ ÑÐ¾Ð±ÑÐ°Ð» " +
         coinCount +
-        " из " +
+        " Ð¸Ð· " +
         coins.length +
-        " монет.";
+        " Ð¼Ð¾Ð½ÐµÑ.";
 
     document.getElementById(
         "message"
