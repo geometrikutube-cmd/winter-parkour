@@ -82,6 +82,30 @@ canvas {
     letter-spacing: 0.5px;
 }
 
+.musicButton {
+    pointer-events: auto;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 10px 14px;
+    color: white;
+    background: rgba(5,15,27,0.72);
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.24);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.musicButton:active {
+    transform: scale(0.94);
+}
+
+#levelUI {
+    margin-top: 4px;
+    font-size: 13px;
+    opacity: 0.78;
+}
+
 #controls {
     position: fixed;
     left: 0;
@@ -213,14 +237,13 @@ canvas {
         <div class="uiBox">
             <div id="coinsUI">❄️ Монеты: 0</div>
             <div id="distanceUI">Дистанция: 0 м</div>
+            <div id="levelUI">Уровень: 1</div>
         </div>
 
-```
     <div class="uiBox" id="titleUI">
         WINTER BLOCK PARKOUR
     </div>
 </div>
-```
 
 </div>
 
@@ -234,11 +257,9 @@ canvas {
         <button class="controlButton" id="rightButton">▶</button>
     </div>
 
-```
 <div class="controlSide">
     <button class="controlButton" id="jumpButton">JUMP</button>
 </div>
-```
 
 </div>
 
@@ -252,6 +273,80 @@ canvas {
 
 <script>
 "use strict";
+
+/* =========================================================
+   MUSIC
+   ========================================================= */
+
+let musicEnabled = false;
+let audioContext = null;
+let musicTimer = null;
+let musicStep = 0;
+
+const melody = [
+    523.25, 659.25, 783.99, 659.25,
+    587.33, 698.46, 880.00, 698.46,
+    523.25, 659.25, 783.99, 1046.50,
+    880.00, 783.99, 659.25, 523.25
+];
+
+function playMusicNote() {
+    if (!audioContext || !musicEnabled) return;
+
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.value = melody[musicStep % melody.length];
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.045, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start(now);
+    osc.stop(now + 0.24);
+
+    musicStep++;
+}
+
+function startMusic() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    if (musicTimer) return;
+
+    playMusicNote();
+    musicTimer = setInterval(playMusicNote, 260);
+}
+
+function stopMusic() {
+    if (musicTimer) {
+        clearInterval(musicTimer);
+        musicTimer = null;
+    }
+}
+
+const musicButton = document.getElementById("musicButton");
+
+musicButton.addEventListener("click", function() {
+    musicEnabled = !musicEnabled;
+
+    if (musicEnabled) {
+        musicButton.textContent = "🔊 Музыка";
+        startMusic();
+    } else {
+        musicButton.textContent = "🔇 Музыка";
+        stopMusic();
+    }
+});
 
 /* =========================================================
    WINTER BLOCK PARKOUR
@@ -272,7 +367,7 @@ const PLAYER_WIDTH = 0.8;
 const PLAYER_HEIGHT = 2.4;
 
 const START_Z = 3;
-const FINISH_Z = -63;
+const FINISH_Z = -151;
 
 const WORLD_LIMIT_X = 6.2;
 
@@ -959,6 +1054,18 @@ platform(
     mats.snow
 );
 
+/* LEVEL 2 */
+platform(-2, 6, -73, 7, 7, 0.8, mats.snow);
+platform(3, 7, -83, 6, 6, 0.8, mats.ice);
+platform(-3, 8, -94, 6, 7, 0.8, mats.snow);
+
+/* LEVEL 3 */
+platform(2, 9, -105, 7, 7, 0.8, mats.snow);
+platform(-3, 10, -116, 5, 6, 0.8, mats.ice);
+platform(1, 11, -127, 8, 8, 0.8, mats.snow);
+platform(-2, 12, -139, 6, 7, 0.8, mats.ice);
+platform(2, 13, -151, 9, 9, 0.8, mats.snow);
+
 
 /* =========================================================
    HAZARDS
@@ -1049,6 +1156,15 @@ hazard(
     1.8
 );
 
+/* LEVEL 2 + 3 HAZARDS */
+hazard(-2, 7, -77, 1.8, 1.5, 1.6);
+hazard(3, 8, -87, 2, 1.5, 1.7);
+hazard(-3, 9, -98, 1.8, 2, 1.8);
+hazard(2, 10, -109, 2, 1.5, 1.7);
+hazard(-3, 11, -120, 1.8, 2, 1.8);
+hazard(1, 12, -132, 2, 1.5, 1.8);
+hazard(-2, 13, -144, 1.8, 2, 1.8);
+
 
 /* =========================================================
    COINS
@@ -1105,6 +1221,14 @@ createCoin(3, 4.25, -32);
 createCoin(-3, 5.25, -41);
 createCoin(2, 6.25, -51);
 createCoin(0, 7.25, -61);
+createCoin(-2, 7.25, -70);
+createCoin(3, 8.25, -80);
+createCoin(-3, 9.25, -91);
+createCoin(2, 10.25, -102);
+createCoin(-3, 11.25, -113);
+createCoin(1, 12.25, -124);
+createCoin(-2, 13.25, -136);
+createCoin(2, 14.25, -148);
 
 
 /* =========================================================
@@ -2013,7 +2137,7 @@ function updateCoins(
             );
 
         if (
-            distance < 1.0
+            distance < 2.2
         ) {
 
             coin.collected = true;
@@ -2062,13 +2186,6 @@ function updatePlayerAnimation(
 
         rightLeg.rotation.x =
             swing;
-
-        player.position.y +=
-            Math.abs(
-                Math.sin(
-                    animTime * 12
-                )
-            ) * 0.025;
 
     } else {
 
@@ -2478,6 +2595,20 @@ function updateUI() {
         "Дистанция: " +
         distance +
         " м";
+
+    let level = 1;
+
+    if (player.position.z <= -101) {
+        level = 3;
+    } else if (player.position.z <= -63) {
+        level = 2;
+    }
+
+    document.getElementById(
+        "levelUI"
+    ).textContent =
+        "Уровень: " +
+        level;
 }
 
 
