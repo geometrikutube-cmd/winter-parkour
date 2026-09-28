@@ -1406,16 +1406,98 @@ function createTree(
    DECORATION
    ========================================================= */
 
+function createSnowMountain(x, y, z, scaleX, scaleY, scaleZ) {
+
+    const mountain =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(1, 2, 7),
+            mats.snow
+        );
+
+    mountain.position.set(x, y, z);
+    mountain.scale.set(scaleX, scaleY, scaleZ);
+    mountain.rotation.y = Math.random() * Math.PI;
+
+    mountain.castShadow = true;
+    mountain.receiveShadow = true;
+
+    scene.add(mountain);
+}
+
+
+/* ДАЛЬНИЕ СНЕЖНЫЕ ГОРЫ */
+
+createSnowMountain(-13, 6, -35, 7, 7, 5);
+createSnowMountain(13, 7, -45, 8, 8, 6);
+createSnowMountain(-14, 8, -60, 9, 9, 7);
+createSnowMountain(14, 9, -78, 10, 10, 8);
+createSnowMountain(-15, 10, -98, 11, 11, 9);
+createSnowMountain(15, 11, -120, 12, 12, 10);
+createSnowMountain(-16, 12, -143, 13, 13, 11);
+
+
+/* ЁЛКИ */
+
 createTree(-7, 0, 0, 1.15);
 createTree(7, 0, -3, 1.2);
-createTree(-6, 0, -9, 1.0);
-createTree(8, 1, -15, 1.3);
-createTree(-7, 2, -21, 1.1);
-createTree(7, 3, -29, 1.2);
-createTree(-7, 4, -38, 1.25);
-createTree(7, 5, -47, 1.2);
-createTree(-7, 5, -54, 1.0);
-createTree(7, 6, -62, 1.25);
+createTree(-7, 0, -8, 1.05);
+createTree(8, 1, -14, 1.3);
+createTree(-8, 1, -20, 1.15);
+createTree(8, 2, -27, 1.25);
+createTree(-8, 3, -34, 1.35);
+createTree(8, 3, -41, 1.2);
+createTree(-8, 4, -49, 1.25);
+createTree(8, 4, -57, 1.3);
+createTree(-8, 5, -66, 1.15);
+createTree(8, 6, -74, 1.35);
+createTree(-8, 6, -82, 1.25);
+createTree(8, 7, -90, 1.35);
+createTree(-8, 8, -99, 1.3);
+createTree(8, 9, -108, 1.4);
+createTree(-8, 10, -118, 1.3);
+createTree(8, 11, -128, 1.45);
+createTree(-8, 12, -138, 1.35);
+createTree(8, 13, -147, 1.5);
+
+
+/* СНЕЖНЫЕ ХОЛМЫ ПО КРАЯМ */
+
+function createSnowHill(x, y, z, scale) {
+
+    const hill =
+        new THREE.Mesh(
+            new THREE.DodecahedronGeometry(1, 0),
+            mats.snow
+        );
+
+    hill.position.set(x, y, z);
+    hill.scale.set(scale * 1.6, scale, scale * 1.8);
+    hill.rotation.y = Math.random() * Math.PI;
+
+    hill.castShadow = true;
+    hill.receiveShadow = true;
+
+    scene.add(hill);
+}
+
+
+createSnowHill(-9, 1.5, -12, 2.2);
+createSnowHill(-10, 2.5, -25, 2.8);
+createSnowHill(-10, 3.5, -39, 3.0);
+createSnowHill(-11, 4.5, -54, 3.2);
+createSnowHill(-11, 5.5, -70, 3.5);
+createSnowHill(-12, 7, -88, 4.0);
+createSnowHill(-12, 8, -108, 4.5);
+createSnowHill(-13, 10, -130, 5.0);
+
+createSnowHill(9, 1.5, -18, 2.4);
+createSnowHill(10, 2.5, -31, 2.8);
+createSnowHill(10, 3.5, -46, 3.1);
+createSnowHill(11, 4.5, -62, 3.4);
+createSnowHill(11, 6, -79, 3.8);
+createSnowHill(12, 7, -97, 4.2);
+createSnowHill(12, 9, -117, 4.7);
+createSnowHill(13, 10, -139, 5.2);
 
 
 /* =========================================================
@@ -1773,6 +1855,42 @@ rightBoot.position.set(
 );
 
 rightLegPivot.add(rightBoot);
+
+/* BOOTS */
+
+const leftBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+leftBoot.position.set(
+    -0.22,
+    -1.1,
+    -0.04
+);
+
+player.add(leftBoot);
+
+
+const rightBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+rightBoot.position.set(
+    0.22,
+    -1.1,
+    -0.04
+);
+
+player.add(rightBoot);
+
 
 /* =========================================================
    PLAYER STATE
