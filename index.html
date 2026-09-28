@@ -278,7 +278,8 @@ canvas {
    MUSIC
    ========================================================= */
 
-let musicEnabled = false;
+let musicEnabled =
+    localStorage.getItem("winterParkourMusic") === "on";
 let audioContext = null;
 let musicTimer = null;
 let musicStep = 0;
@@ -336,17 +337,65 @@ function stopMusic() {
 
 const musicButton = document.getElementById("musicButton");
 
-musicButton.addEventListener("click", function() {
+    musicButton.addEventListener("click", function() {
+
     musicEnabled = !musicEnabled;
 
+    localStorage.setItem(
+        "winterParkourMusic",
+        musicEnabled ? "on" : "off"
+    );
+
     if (musicEnabled) {
-        musicButton.textContent = "🔊 Музыка";
+
+        musicButton.textContent =
+            "🔊 Музыка";
+
         startMusic();
+
     } else {
-        musicButton.textContent = "🔇 Музыка";
+
+        musicButton.textContent =
+            "🔇 Музыка";
+
         stopMusic();
     }
 });
+
+
+if (musicEnabled) {
+
+    musicButton.textContent =
+        "🔊 Музыка";
+
+    document.addEventListener(
+        "pointerdown",
+        function musicUnlock() {
+
+            startMusic();
+
+            document.removeEventListener(
+                "pointerdown",
+                musicUnlock
+            );
+        },
+        { once: true }
+    );
+
+    document.addEventListener(
+        "keydown",
+        function musicKeyUnlock() {
+
+            startMusic();
+
+            document.removeEventListener(
+                "keydown",
+                musicKeyUnlock
+            );
+        },
+        { once: true }
+    );
+}
 
 /* =========================================================
    WINTER BLOCK PARKOUR
@@ -1571,8 +1620,20 @@ hatPom.castShadow = true;
 
 player.add(hatPom);
 
-
+    
 /* ARMS */
+
+const leftArmPivot =
+    new THREE.Group();
+
+leftArmPivot.position.set(
+    -0.55,
+    0.32,
+    0
+);
+
+player.add(leftArmPivot);
+
 
 const leftArm =
     box(
@@ -1583,12 +1644,24 @@ const leftArm =
     );
 
 leftArm.position.set(
-    -0.55,
-    0.02,
+    0,
+    -0.37,
     0
 );
 
-player.add(leftArm);
+leftArmPivot.add(leftArm);
+
+
+const rightArmPivot =
+    new THREE.Group();
+
+rightArmPivot.position.set(
+    0.55,
+    0.32,
+    0
+);
+
+player.add(rightArmPivot);
 
 
 const rightArm =
@@ -1600,15 +1673,27 @@ const rightArm =
     );
 
 rightArm.position.set(
-    0.55,
-    0.02,
+    0,
+    -0.37,
     0
 );
 
-player.add(rightArm);
+rightArmPivot.add(rightArm);
 
 
 /* LEGS */
+
+const leftLegPivot =
+    new THREE.Group();
+
+leftLegPivot.position.set(
+    -0.22,
+    -0.38,
+    0
+);
+
+player.add(leftLegPivot);
+
 
 const leftLeg =
     box(
@@ -1619,12 +1704,41 @@ const leftLeg =
     );
 
 leftLeg.position.set(
-    -0.22,
-    -0.72,
+    0,
+    -0.36,
     0
 );
 
-player.add(leftLeg);
+leftLegPivot.add(leftLeg);
+
+
+const leftBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+leftBoot.position.set(
+    0,
+    -0.74,
+    -0.04
+);
+
+leftLegPivot.add(leftBoot);
+
+
+const rightLegPivot =
+    new THREE.Group();
+
+rightLegPivot.position.set(
+    0.22,
+    -0.38,
+    0
+);
+
+player.add(rightLegPivot);
 
 
 const rightLeg =
@@ -1636,13 +1750,29 @@ const rightLeg =
     );
 
 rightLeg.position.set(
-    0.22,
-    -0.72,
+    0,
+    -0.36,
     0
 );
 
-player.add(rightLeg);
+rightLegPivot.add(rightLeg);
 
+
+const rightBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+rightBoot.position.set(
+    0,
+    -0.74,
+    -0.04
+);
+
+rightLegPivot.add(rightBoot);
 
 /* BOOTS */
 
@@ -2155,118 +2285,175 @@ function updateCoins(
 /* =========================================================
    PLAYER ANIMATION
    ========================================================= */
-
 function updatePlayerAnimation(
     dt
 ) {
 
     animTime += dt;
 
-    const moving =
-        Math.abs(velocityX) > 0.3;
+    const horizontalSpeed =
+        Math.abs(velocityX);
 
-    if (
+    const running =
         onGround &&
-        moving
-    ) {
+        horizontalSpeed > 0.15;
+
+
+    if (running) {
 
         const swing =
             Math.sin(
-                animTime * 12
-            ) * 0.65;
+                animTime * 10
+            ) * 0.48;
 
-        leftArm.rotation.x =
-            swing;
+        const armSwing =
+            Math.sin(
+                animTime * 10
+            ) * 0.34;
 
-        rightArm.rotation.x =
-            -swing;
 
-        leftLeg.rotation.x =
-            -swing;
+        leftLegPivot.rotation.x =
+            THREE.MathUtils.damp(
+                leftLegPivot.rotation.x,
+                swing,
+                14,
+                dt
+            );
 
-        rightLeg.rotation.x =
-            swing;
+        rightLegPivot.rotation.x =
+            THREE.MathUtils.damp(
+                rightLegPivot.rotation.x,
+                -swing,
+                14,
+                dt
+            );
+
+
+        leftArmPivot.rotation.x =
+            THREE.MathUtils.damp(
+                leftArmPivot.rotation.x,
+                -armSwing,
+                14,
+                dt
+            );
+
+        rightArmPivot.rotation.x =
+            THREE.MathUtils.damp(
+                rightArmPivot.rotation.x,
+                armSwing,
+                14,
+                dt
+            );
+
+    } else if (onGround) {
+
+        leftLegPivot.rotation.x =
+            THREE.MathUtils.damp(
+                leftLegPivot.rotation.x,
+                0,
+                12,
+                dt
+            );
+
+        rightLegPivot.rotation.x =
+            THREE.MathUtils.damp(
+                rightLegPivot.rotation.x,
+                0,
+                12,
+                dt
+            );
+
+        leftArmPivot.rotation.x =
+            THREE.MathUtils.damp(
+                leftArmPivot.rotation.x,
+                0,
+                12,
+                dt
+            );
+
+        rightArmPivot.rotation.x =
+            THREE.MathUtils.damp(
+                rightArmPivot.rotation.x,
+                0,
+                12,
+                dt
+            );
 
     } else {
 
-        leftArm.rotation.x =
+        /* JUMP */
+
+        leftArmPivot.rotation.x =
             THREE.MathUtils.damp(
-                leftArm.rotation.x,
-                0,
+                leftArmPivot.rotation.x,
+                -0.7,
                 10,
                 dt
             );
 
-        rightArm.rotation.x =
+        rightArmPivot.rotation.x =
             THREE.MathUtils.damp(
-                rightArm.rotation.x,
-                0,
+                rightArmPivot.rotation.x,
+                -0.7,
                 10,
                 dt
             );
 
-        leftLeg.rotation.x =
+        leftLegPivot.rotation.x =
             THREE.MathUtils.damp(
-                leftLeg.rotation.x,
-                0,
+                leftLegPivot.rotation.x,
+                0.25,
                 10,
                 dt
             );
 
-        rightLeg.rotation.x =
+        rightLegPivot.rotation.x =
             THREE.MathUtils.damp(
-                rightLeg.rotation.x,
-                0,
+                rightLegPivot.rotation.x,
+                -0.25,
                 10,
                 dt
             );
     }
 
-    if (
-        !onGround
-    ) {
 
-        leftArm.rotation.x =
-            -0.35;
-
-        rightArm.rotation.x =
-            -0.35;
-
-        leftLeg.rotation.x =
-            0.25;
-
-        rightLeg.rotation.x =
-            -0.25;
-    }
+    /* BODY LEAN */
 
     const targetTilt =
-        -velocityX * 0.055;
+        THREE.MathUtils.clamp(
+            -velocityX * 0.045,
+            -0.28,
+            0.28
+        );
 
     player.rotation.z =
         THREE.MathUtils.damp(
             player.rotation.z,
             targetTilt,
-            8,
+            9,
             dt
         );
 
-    const targetY =
-        onGround
-            ? 0
-            : Math.min(
-                0.12,
-                Math.abs(velocityY) * 0.01
-            );
+
+    /* SMALL BODY BOUNCE */
+
+    const targetBodyY =
+        running
+            ? Math.abs(
+                Math.sin(
+                    animTime * 10
+                )
+            ) * 0.045
+            : 0;
 
     body.position.y =
         THREE.MathUtils.damp(
             body.position.y,
-            targetY,
-            10,
+            targetBodyY,
+            12,
             dt
         );
 }
-
 
 /* =========================================================
    PLAYER MOVEMENT
