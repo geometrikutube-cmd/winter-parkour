@@ -1,303 +1,205 @@
-```html
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ru">
-
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Winter Block Parkour</title>
 
 <style>
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#9edcff;
-    font-family:Arial,sans-serif;
-    touch-action:none;
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
-body{
-    user-select:none;
-    -webkit-user-select:none;
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #8ed7f7;
+    font-family: Arial, Helvetica, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
 }
 
-canvas{
-    display:block;
+body {
+    position: fixed;
+    inset: 0;
 }
 
-#ui{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    color:#fff;
-    text-shadow:0 2px 4px #245;
-    z-index:10;
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
-#title{
-    position:absolute;
-    top:16px;
-    left:18px;
-    font-size:24px;
-    font-weight:800;
+#ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 14px;
+    z-index: 20;
+    pointer-events: none;
 }
 
-#stats{
-    position:absolute;
-    top:52px;
-    left:18px;
-    font-size:15px;
+#top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
 }
 
-#help{
-    position:absolute;
-    bottom:16px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#123a55aa;
-    padding:9px 14px;
-    border-radius:12px;
-    font-size:13px;
-    white-space:nowrap;
+.uiBox {
+    padding: 10px 14px;
+    border-radius: 16px;
+    color: white;
+    background: rgba(5, 15, 27, 0.68);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-#best{
-    position:absolute;
-    top:78px;
-    left:18px;
-    font-size:13px;
-    opacity:.9;
+#coinsUI {
+    font-size: 18px;
+    font-weight: 800;
 }
 
-#touch{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:18px;
-    display:none;
-    justify-content:space-between;
-    padding:0 18px;
-    pointer-events:none;
-    z-index:20;
+#distanceUI {
+    margin-top: 4px;
+    font-size: 13px;
+    opacity: 0.78;
 }
 
-.touchGroup{
-    display:flex;
-    gap:10px;
-    pointer-events:auto;
+#titleUI {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
 }
 
-.touchButton{
-    width:64px;
-    height:64px;
-    padding:0;
-    border:2px solid rgba(255,255,255,.65);
-    border-radius:20px;
-    background:rgba(255,255,255,.78);
-    color:#17364a;
-    font-weight:900;
-    font-size:25px;
-    box-shadow:0 5px 14px rgba(0,40,80,.25);
-    touch-action:none;
-    -webkit-tap-highlight-color:transparent;
+#controls {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 18px;
+    z-index: 25;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 18px;
+    pointer-events: none;
 }
 
-.touchButton:active{
-    transform:scale(.92);
-    background:#fff;
+.controlSide {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
 }
 
-#jump{
-    width:76px;
-    font-size:30px;
+.controlButton {
+    width: 72px;
+    height: 72px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 22px;
+    background: rgba(5,15,27,0.72);
+    color: white;
+    font-size: 30px;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-#finishScreen,
-#leaderboardScreen{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(8,34,55,.55);
-    backdrop-filter:blur(5px);
-    z-index:100;
-    pointer-events:auto;
+.controlButton:active {
+    transform: scale(0.92);
+    background: rgba(30,100,180,0.85);
 }
 
-.panel{
-    width:min(420px,calc(100% - 32px));
-    max-height:calc(100% - 40px);
-    overflow:auto;
-    box-sizing:border-box;
-    background:rgba(244,251,255,.97);
-    color:#17364a;
-    border-radius:24px;
-    padding:24px;
-    box-shadow:0 18px 60px rgba(0,30,60,.35);
-    text-shadow:none;
-    text-align:center;
+#jumpButton {
+    width: 92px;
+    font-size: 18px;
 }
 
-.panel h1{
-    margin:0 0 8px;
-    font-size:28px;
+#message {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: min(390px, calc(100vw - 36px));
+    transform: translate(-50%, -50%) scale(0.92);
+    z-index: 50;
+    padding: 28px;
+    border-radius: 24px;
+    text-align: center;
+    color: white;
+    background: rgba(4,12,22,0.94);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 25px 80px rgba(0,0,0,0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s ease;
 }
 
-.panel p{
-    margin:7px 0;
+#message.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
 }
 
-.resultTime{
-    font-size:36px;
-    font-weight:900;
-    margin:14px 0;
+#message h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
 }
 
-.nameInput{
-    width:100%;
-    box-sizing:border-box;
-    padding:14px 16px;
-    border:2px solid #b8d7e8;
-    border-radius:14px;
-    outline:none;
-    font-size:17px;
-    margin:12px 0;
+#message p {
+    margin: 8px 0;
+    color: #dcecff;
+    line-height: 1.5;
 }
 
-.nameInput:focus{
-    border-color:#2877c8;
+#restartButton {
+    margin-top: 16px;
+    border: 0;
+    border-radius: 14px;
+    padding: 13px 24px;
+    color: white;
+    background: #237bd0;
+    font-size: 17px;
+    font-weight: 800;
 }
 
-.actionButton{
-    width:100%;
-    border:0;
-    border-radius:14px;
-    padding:14px 18px;
-    margin-top:8px;
-    background:#2877c8;
-    color:#fff;
-    font-size:17px;
-    font-weight:800;
-    cursor:pointer;
+#help {
+    position: fixed;
+    left: 50%;
+    bottom: 105px;
+    transform: translateX(-50%);
+    z-index: 15;
+    color: rgba(255,255,255,0.72);
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
-.actionButton.secondary{
-    background:#dcecf5;
-    color:#17364a;
-}
-
-.leaderboardTitle{
-    font-size:23px;
-    font-weight:900;
-    margin-bottom:14px;
-}
-
-.leaderboard{
-    text-align:left;
-    margin:10px 0 18px;
-}
-
-.row{
-    display:grid;
-    grid-template-columns:42px 1fr 80px;
-    gap:8px;
-    align-items:center;
-    padding:10px 8px;
-    border-bottom:1px solid #d7e7ef;
-    font-size:15px;
-}
-
-.row:first-child{
-    border-radius:10px 10px 0 0;
-    background:#fff4c7;
-}
-
-.rank{
-    font-weight:900;
-    text-align:center;
-}
-
-.score{
-    font-weight:900;
-    text-align:right;
-}
-
-.empty{
-    padding:20px 0;
-    color:#6d8795;
-}
-
-#leaderboardButton{
-    position:absolute;
-    top:16px;
-    right:18px;
-    pointer-events:auto;
-    border:0;
-    border-radius:12px;
-    padding:9px 12px;
-    background:#ffffffcc;
-    color:#17364a;
-    font-weight:800;
-    cursor:pointer;
-}
-
-@media(max-width:700px){
-
-    #title{
-        top:10px;
-        left:12px;
-        font-size:18px;
+@media (max-width: 700px) {
+    #help {
+        display: none;
     }
 
-    #stats{
-        top:36px;
-        left:12px;
-        font-size:13px;
+    .controlButton {
+        width: 66px;
+        height: 66px;
     }
 
-    #best{
-        top:58px;
-        left:12px;
-        font-size:11px;
+    #jumpButton {
+        width: 86px;
     }
 
-    #help{
-        display:none;
-    }
-
-    #leaderboardButton{
-        top:10px;
-        right:12px;
-        padding:8px 10px;
-        font-size:12px;
-    }
-
-    #touch{
-        display:flex;
-    }
-
-    .panel{
-        padding:20px;
-    }
-}
-
-@media(max-height:520px) and (orientation:landscape){
-
-    #touch{
-        bottom:10px;
-    }
-
-    .touchButton{
-        width:54px;
-        height:54px;
-    }
-
-    #jump{
-        width:66px;
+    #titleUI {
+        display: none;
     }
 }
 </style>
@@ -307,103 +209,77 @@ canvas{
 <body>
 
 <div id="ui">
-
-    <div id="title">❄ WINTER BLOCK PARKOUR</div>
-
-    <div id="stats">
-        Монеты: <span id="coins">0</span>
-        · Время: <span id="time">0.0</span>
-    </div>
-
-    <div id="best">
-        Лучшее: <span id="bestTime">—</span>
-    </div>
-
-    <button id="leaderboardButton">
-        🏆 Лидеры
-    </button>
-
-    <div id="help">
-        A/D или ←/→ — движение · Space/W/↑ — прыжок · R — рестарт
-    </div>
-
-</div>
-
-<div id="touch">
-
-    <div class="touchGroup">
-        <button class="touchButton" id="left">←</button>
-        <button class="touchButton" id="right">→</button>
-    </div>
-
-    <div class="touchGroup">
-        <button class="touchButton" id="jump">↑</button>
-    </div>
-
-</div>
-
-<div id="finishScreen">
-
-    <div class="panel">
-
-        <h1>🏁 Финиш!</h1>
-
-        <p>Ты прошёл зимний паркур.</p>
-
-        <div class="resultTime">
-            <span id="finalTime">0.0</span> сек
+    <div id="top">
+        <div class="uiBox">
+            <div id="coinsUI">❄️ Монеты: 0</div>
+            <div id="distanceUI">Дистанция: 0 м</div>
         </div>
 
-        <p>
-            Монеты:
-            <b id="finalCoins">0</b>
-        </p>
-
-        <input
-            id="playerName"
-            class="nameInput"
-            maxlength="16"
-            autocomplete="off"
-            placeholder="Твоё имя"
-        >
-
-        <button class="actionButton" id="saveScore">
-            🏆 Сохранить результат
-        </button>
-
-        <button class="actionButton secondary" id="restartButton">
-            🔄 Играть ещё раз
-        </button>
-
+```
+    <div class="uiBox" id="titleUI">
+        WINTER BLOCK PARKOUR
     </div>
+</div>
+```
 
 </div>
 
-<div id="leaderboardScreen">
+<div id="help">
+    ← → / A D — движение &nbsp; • &nbsp; SPACE — прыжок
+</div>
 
-    <div class="panel">
-
-        <div class="leaderboardTitle">
-            🏆 Таблица лидеров
-        </div>
-
-        <div id="leaderboard" class="leaderboard"></div>
-
-        <button class="actionButton secondary" id="closeLeaderboard">
-            Закрыть
-        </button>
-
+<div id="controls">
+    <div class="controlSide">
+        <button class="controlButton" id="leftButton">◀</button>
+        <button class="controlButton" id="rightButton">▶</button>
     </div>
 
+```
+<div class="controlSide">
+    <button class="controlButton" id="jumpButton">JUMP</button>
+</div>
+```
+
+</div>
+
+<div id="message">
+    <h1 id="messageTitle">Финиш!</h1>
+    <p id="messageText"></p>
+    <button id="restartButton">Играть снова</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
+"use strict";
+
+/* =========================================================
+   WINTER BLOCK PARKOUR
+   ========================================================= */
+
+const AUTO_SPEED = 6.6;
+const SIDE_SPEED = 7.5;
+const SIDE_ACCEL = 32;
+const SIDE_FRICTION = 38;
+
+const JUMP_FORCE = 8.8;
+const GRAVITY = 22;
+
+const COYOTE_TIME = 0.13;
+const JUMP_BUFFER_TIME = 0.14;
+
+const PLAYER_WIDTH = 0.8;
+const PLAYER_HEIGHT = 2.4;
+
+const START_Z = 3;
+const FINISH_Z = -63;
+
+const WORLD_LIMIT_X = 6.2;
+
 
 /* =========================================================
    SCENE
-========================================================= */
+   ========================================================= */
 
 const scene = new THREE.Scene();
 
@@ -411,51 +287,52 @@ scene.background = new THREE.Color(0x9edcff);
 
 scene.fog = new THREE.Fog(
     0x9edcff,
-    25,
-    105
+    38,
+    125
 );
 
 
 /* =========================================================
    CAMERA
-========================================================= */
+   ========================================================= */
 
 const camera = new THREE.PerspectiveCamera(
     65,
-    innerWidth / innerHeight,
+    window.innerWidth / window.innerHeight,
     0.1,
-    300
+    250
 );
 
 camera.position.set(
     0,
-    7,
-    13
+    5.5,
+    14
 );
 
 
 /* =========================================================
    RENDERER
-========================================================= */
+   ========================================================= */
 
 const renderer = new THREE.WebGLRenderer({
-    antialias:true,
-    powerPreference:"high-performance"
+    antialias: true
 });
 
-renderer.setSize(
-    innerWidth,
-    innerHeight
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, 2)
 );
 
-renderer.setPixelRatio(
-    Math.min(devicePixelRatio,2)
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
 );
 
 renderer.shadowMap.enabled = true;
-
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
+
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
 
 document.body.appendChild(
     renderer.domElement
@@ -464,26 +341,26 @@ document.body.appendChild(
 
 /* =========================================================
    LIGHT
-========================================================= */
+   ========================================================= */
 
-scene.add(
-    new THREE.HemisphereLight(
-        0xeaf8ff,
-        0x7896a8,
-        2.2
-    )
+const hemi = new THREE.HemisphereLight(
+    0xe8f8ff,
+    0x3c5265,
+    2.2
 );
 
-const sun =
-    new THREE.DirectionalLight(
-        0xffffff,
-        2.4
-    );
+scene.add(hemi);
+
+
+const sun = new THREE.DirectionalLight(
+    0xffffff,
+    3
+);
 
 sun.position.set(
-    -15,
-    30,
-    10
+    25,
+    40,
+    15
 );
 
 sun.castShadow = true;
@@ -491,78 +368,488 @@ sun.castShadow = true;
 sun.shadow.mapSize.width = 2048;
 sun.shadow.mapSize.height = 2048;
 
+sun.shadow.camera.left = -55;
+sun.shadow.camera.right = 55;
+sun.shadow.camera.top = 55;
+sun.shadow.camera.bottom = -55;
+
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 160;
+
 scene.add(sun);
 
 
 /* =========================================================
+   TEXTURES
+   ========================================================= */
+
+function createSnowTexture() {
+
+    const canvas =
+        document.createElement("canvas");
+
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            256,
+            256
+        );
+
+    gradient.addColorStop(
+        0,
+        "#ffffff"
+    );
+
+    gradient.addColorStop(
+        0.55,
+        "#e8f8ff"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#b9d8e8"
+    );
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        256,
+        256
+    );
+
+    for (let i = 0; i < 650; i++) {
+
+        const x =
+            Math.random() * 256;
+
+        const y =
+            Math.random() * 256;
+
+        const r =
+            Math.random() * 2 + 0.2;
+
+        ctx.fillStyle =
+            `rgba(255,255,255,${0.15 + Math.random() * 0.7})`;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            r,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+
+    const texture =
+        new THREE.CanvasTexture(canvas);
+
+    texture.wrapS =
+        THREE.RepeatWrapping;
+
+    texture.wrapT =
+        THREE.RepeatWrapping;
+
+    texture.repeat.set(
+        2,
+        2
+    );
+
+    texture.colorSpace =
+        THREE.SRGBColorSpace;
+
+    return texture;
+}
+
+
+function createIceTexture() {
+
+    const canvas =
+        document.createElement("canvas");
+
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            256,
+            256
+        );
+
+    gradient.addColorStop(
+        0,
+        "#e7fcff"
+    );
+
+    gradient.addColorStop(
+        0.4,
+        "#8fe1f3"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#348fb8"
+    );
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        256,
+        256
+    );
+
+    for (let i = 0; i < 22; i++) {
+
+        ctx.strokeStyle =
+            "rgba(255,255,255,0.45)";
+
+        ctx.lineWidth =
+            Math.random() * 2 + 0.5;
+
+        ctx.beginPath();
+
+        let x =
+            Math.random() * 256;
+
+        let y =
+            Math.random() * 256;
+
+        ctx.moveTo(x, y);
+
+        for (let j = 0; j < 5; j++) {
+
+            x +=
+                Math.random() * 70 - 35;
+
+            y +=
+                Math.random() * 70 - 35;
+
+            ctx.lineTo(x, y);
+        }
+
+        ctx.stroke();
+    }
+
+    const texture =
+        new THREE.CanvasTexture(canvas);
+
+    texture.wrapS =
+        THREE.RepeatWrapping;
+
+    texture.wrapT =
+        THREE.RepeatWrapping;
+
+    texture.repeat.set(
+        2,
+        2
+    );
+
+    texture.colorSpace =
+        THREE.SRGBColorSpace;
+
+    return texture;
+}
+
+
+function createWoodTexture() {
+
+    const canvas =
+        document.createElement("canvas");
+
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    ctx.fillStyle =
+        "#68432c";
+
+    ctx.fillRect(
+        0,
+        0,
+        256,
+        256
+    );
+
+    for (
+        let y = 0;
+        y < 256;
+        y += 32
+    ) {
+
+        ctx.fillStyle =
+            y % 64 === 0
+                ? "#7e5336"
+                : "#5c3a27";
+
+        ctx.fillRect(
+            0,
+            y,
+            256,
+            30
+        );
+
+        ctx.strokeStyle =
+            "rgba(20,10,5,0.45)";
+
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            256,
+            y
+        );
+
+        ctx.stroke();
+    }
+
+    for (let i = 0; i < 100; i++) {
+
+        const x =
+            Math.random() * 256;
+
+        const y =
+            Math.random() * 256;
+
+        ctx.strokeStyle =
+            "rgba(20,10,5,0.22)";
+
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            y
+        );
+
+        ctx.lineTo(
+            x + Math.random() * 30 - 15,
+            y + Math.random() * 3 - 1.5
+        );
+
+        ctx.stroke();
+    }
+
+    const texture =
+        new THREE.CanvasTexture(canvas);
+
+    texture.wrapS =
+        THREE.RepeatWrapping;
+
+    texture.wrapT =
+        THREE.RepeatWrapping;
+
+    texture.repeat.set(
+        2,
+        2
+    );
+
+    texture.colorSpace =
+        THREE.SRGBColorSpace;
+
+    return texture;
+}
+
+
+const snowTexture =
+    createSnowTexture();
+
+const iceTexture =
+    createIceTexture();
+
+const woodTexture =
+    createWoodTexture();
+
+
+/* =========================================================
    MATERIALS
-========================================================= */
+   ========================================================= */
 
 const mats = {
 
     snow:
         new THREE.MeshStandardMaterial({
-            color:0xf4fbff,
-            roughness:1
+            map: snowTexture,
+            roughness: 0.84
         }),
 
     ice:
         new THREE.MeshStandardMaterial({
-            color:0x74c9ef,
-            roughness:.35,
-            metalness:.05
+            map: iceTexture,
+            roughness: 0.22,
+            metalness: 0.12
+        }),
+
+    wood:
+        new THREE.MeshStandardMaterial({
+            map: woodTexture,
+            roughness: 0.9
         }),
 
     blue:
         new THREE.MeshStandardMaterial({
-            color:0x2877c8,
-            roughness:.65
+            color: 0x2b7ac3,
+            roughness: 0.62
         }),
 
     dark:
         new THREE.MeshStandardMaterial({
-            color:0x183c62,
-            roughness:.8
+            color: 0x16334f,
+            roughness: 0.75
         }),
 
-    gold:
+    white:
         new THREE.MeshStandardMaterial({
-            color:0xffd34d,
-            emissive:0x5b3e00,
-            emissiveIntensity:.25
+            color: 0xffffff,
+            roughness: 0.82
         }),
 
     red:
         new THREE.MeshStandardMaterial({
-            color:0xff5964,
-            roughness:.7
-        })
+            color: 0xd63232,
+            roughness: 0.62
+        }),
 
+    gold:
+        new THREE.MeshStandardMaterial({
+            color: 0xffd83d,
+            emissive: 0x805000,
+            emissiveIntensity: 0.5,
+            metalness: 0.65,
+            roughness: 0.22
+        }),
+
+    black:
+        new THREE.MeshStandardMaterial({
+            color: 0x111820,
+            roughness: 0.8
+        }),
+
+    green:
+        new THREE.MeshStandardMaterial({
+            color: 0x27583a,
+            roughness: 0.9
+        })
 };
 
 
 /* =========================================================
    HELPERS
-========================================================= */
+   ========================================================= */
 
 function box(
-    x,
-    y,
-    z,
-    sx,
-    sy,
-    sz,
-    mat=mats.snow
-){
+    width,
+    height,
+    depth,
+    material
+) {
+
+    const geometry =
+        new THREE.BoxGeometry(
+            width,
+            height,
+            depth
+        );
 
     const mesh =
         new THREE.Mesh(
-            new THREE.BoxGeometry(
-                sx,
-                sy,
-                sz
-            ),
-            mat
+            geometry,
+            material
+        );
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    return mesh;
+}
+
+
+function cylinder(
+    radiusTop,
+    radiusBottom,
+    height,
+    material,
+    segments = 16
+) {
+
+    const geometry =
+        new THREE.CylinderGeometry(
+            radiusTop,
+            radiusBottom,
+            height,
+            segments
+        );
+
+    const mesh =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    return mesh;
+}
+
+
+/* =========================================================
+   WORLD DATA
+   ========================================================= */
+
+const platforms = [];
+const hazards = [];
+const coins = [];
+const trees = [];
+
+
+/* =========================================================
+   PLATFORM
+   ========================================================= */
+
+function platform(
+    x,
+    y,
+    z,
+    width,
+    depth,
+    height = 0.8,
+    material = mats.snow
+) {
+
+    const mesh =
+        box(
+            width,
+            height,
+            depth,
+            material
         );
 
     mesh.position.set(
@@ -571,1529 +858,1499 @@ function box(
         z
     );
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-
     scene.add(mesh);
+
+    platforms.push({
+        mesh: mesh,
+        x: x,
+        y: y,
+        z: z,
+        width: width,
+        depth: depth,
+        height: height,
+        top: y + height / 2
+    });
 
     return mesh;
 }
 
 
 /* =========================================================
-   TREES
-========================================================= */
-
-function tree(x,z){
-
-    box(
-        x,
-        2,
-        z,
-        1.1,
-        4,
-        1.1,
-        mats.dark
-    );
-
-    box(
-        x,
-        4.4,
-        z,
-        3.3,
-        2.8,
-        3.3,
-        mats.blue
-    );
-
-    box(
-        x,
-        6,
-        z,
-        2.4,
-        2.2,
-        2.4,
-        mats.snow
-    );
-
-}
-
-for(let i=0;i<34;i++){
-
-    let x =
-        (Math.random()-.5)*70;
-
-    let z =
-        8-Math.random()*110;
-
-    if(Math.abs(x)<7){
-
-        x +=
-            x<0
-                ? -12
-                : 12;
-    }
-
-    tree(x,z);
-}
-
-
-/* =========================================================
    COURSE
-========================================================= */
-
-const platforms = [];
-
-function platform(
-    x,
-    y,
-    z,
-    w,
-    d,
-    h=.8,
-    mat=mats.snow
-){
-
-    const p =
-        box(
-            x,
-            y,
-            z,
-            w,
-            h,
-            d,
-            mat
-        );
-
-    platforms.push(p);
-
-    return p;
-}
-
-
-/* Start */
+   ========================================================= */
 
 platform(
-    0,0,2,
-    10,8
-);
-
-
-/* Course */
-
-platform(
-    0,0,-6,
-    7,7
+    0,
+    0,
+    2,
+    10,
+    8,
+    0.8,
+    mats.snow
 );
 
 platform(
-    4,1,-15,
-    6,6,
-    .8,
+    0,
+    0,
+    -6,
+    7,
+    7,
+    0.8,
+    mats.snow
+);
+
+platform(
+    4,
+    1,
+    -15,
+    6,
+    6,
+    0.8,
     mats.ice
 );
 
 platform(
-    -2,2,-24,
-    5,6
+    -2,
+    2,
+    -24,
+    5,
+    6,
+    0.8,
+    mats.snow
 );
 
 platform(
-    3,3,-33,
-    6,5
+    3,
+    3,
+    -33,
+    6,
+    5,
+    0.8,
+    mats.snow
 );
 
 platform(
-    -3,4,-42,
-    5,6,
-    .8,
+    -3,
+    4,
+    -42,
+    5,
+    6,
+    0.8,
     mats.ice
 );
 
 platform(
-    2,5,-52,
-    7,7
+    2,
+    5,
+    -52,
+    7,
+    7,
+    0.8,
+    mats.snow
 );
 
 platform(
-    0,6,-63,
-    9,8
+    0,
+    6,
+    -63,
+    9,
+    8,
+    0.8,
+    mats.snow
 );
 
 
 /* =========================================================
    HAZARDS
-========================================================= */
+   ========================================================= */
 
-platform(
-    0,1,-10,
-    2,1,
-    1.5,
-    mats.red
-);
+function hazard(
+    x,
+    y,
+    z,
+    width,
+    height,
+    depth,
+    material = mats.red
+) {
 
-platform(
-    4,2,-19,
-    2,2,
-    1.4,
-    mats.red
-);
-
-platform(
-    -2,3,-28,
-    1.6,3,
-    1.8,
-    mats.red
-);
-
-platform(
-    3,4,-37,
-    2,1.5,
-    1.8,
-    mats.red
-);
-
-platform(
-    -3,5,-47,
-    1.5,2,
-    1.8,
-    mats.red
-);
-
-
-/* =========================================================
-   COINS
-========================================================= */
-
-function coin(x,y,z){
-
-    const m =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .38,
-                .38,
-                .12,
-                24
-            ),
-            mats.gold
+    const mesh =
+        box(
+            width,
+            height,
+            depth,
+            material
         );
 
-    m.rotation.x =
-        Math.PI/2;
-
-    m.position.set(
+    mesh.position.set(
         x,
         y,
         z
     );
 
-    m.userData.coin = true;
+    scene.add(mesh);
 
-    scene.add(m);
+    hazards.push({
+        mesh: mesh,
+        x: x,
+        y: y,
+        z: z,
+        width: width,
+        height: height,
+        depth: depth
+    });
 
-    return m;
+    return mesh;
 }
 
-[
-    [0,1,-4],
-    [4,2,-14],
-    [-2,3,-23],
-    [3,4,-32],
-    [-3,5,-41],
-    [2,6,-51],
-    [0,7,-61]
 
-].forEach(a=>coin(...a));
+hazard(
+    0,
+    1,
+    -10,
+    2,
+    1,
+    1.5
+);
+
+hazard(
+    4,
+    2,
+    -19,
+    2,
+    2,
+    1.4
+);
+
+hazard(
+    -2,
+    3,
+    -28,
+    1.6,
+    3,
+    1.8
+);
+
+hazard(
+    3,
+    4,
+    -37,
+    2,
+    1.5,
+    1.8
+);
+
+hazard(
+    -3,
+    5,
+    -47,
+    1.5,
+    2,
+    1.8
+);
+
+
+/* =========================================================
+   COINS
+   ========================================================= */
+
+function createCoin(
+    x,
+    y,
+    z
+) {
+
+    const geometry =
+        new THREE.TorusGeometry(
+            0.32,
+            0.10,
+            12,
+            24
+        );
+
+    const mesh =
+        new THREE.Mesh(
+            geometry,
+            mats.gold
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
+    );
+
+    mesh.rotation.x =
+        Math.PI / 2;
+
+    mesh.castShadow = true;
+
+    scene.add(mesh);
+
+    coins.push({
+        mesh: mesh,
+        collected: false,
+        baseY: y,
+        phase: Math.random() * Math.PI * 2
+    });
+
+    return mesh;
+}
+
+
+createCoin(0, 1.25, -4);
+createCoin(4, 2.25, -14);
+createCoin(-2, 3.25, -23);
+createCoin(3, 4.25, -32);
+createCoin(-3, 5.25, -41);
+createCoin(2, 6.25, -51);
+createCoin(0, 7.25, -61);
+
+
+/* =========================================================
+   TREES
+   ========================================================= */
+
+function createTree(
+    x,
+    y,
+    z,
+    scale = 1
+) {
+
+    const group =
+        new THREE.Group();
+
+    const trunk =
+        cylinder(
+            0.22,
+            0.28,
+            1.8,
+            mats.wood,
+            8
+        );
+
+    trunk.position.y =
+        0.9;
+
+    group.add(trunk);
+
+
+    const snowBase =
+        cylinder(
+            0.85,
+            1.05,
+            0.5,
+            mats.snow,
+            8
+        );
+
+    snowBase.position.y =
+        1.75;
+
+    group.add(snowBase);
+
+
+    const green1 =
+        cylinder(
+            0.25,
+            1.0,
+            1.7,
+            mats.green,
+            8
+        );
+
+    green1.position.y =
+        2.4;
+
+    group.add(green1);
+
+
+    const green2 =
+        cylinder(
+            0.15,
+            0.78,
+            1.45,
+            mats.green,
+            8
+        );
+
+    green2.position.y =
+        3.35;
+
+    group.add(green2);
+
+
+    const green3 =
+        cylinder(
+            0.05,
+            0.58,
+            1.2,
+            mats.green,
+            8
+        );
+
+    green3.position.y =
+        4.2;
+
+    group.add(green3);
+
+
+    const topSnow =
+        cylinder(
+            0.03,
+            0.65,
+            0.22,
+            mats.snow,
+            8
+        );
+
+    topSnow.position.y =
+        4.72;
+
+    group.add(topSnow);
+
+
+    group.position.set(
+        x,
+        y,
+        z
+    );
+
+    group.scale.setScalar(
+        scale
+    );
+
+    scene.add(group);
+
+    trees.push(group);
+
+    return group;
+}
+
+
+/* =========================================================
+   DECORATION
+   ========================================================= */
+
+createTree(-7, 0, 0, 1.15);
+createTree(7, 0, -3, 1.2);
+createTree(-6, 0, -9, 1.0);
+createTree(8, 1, -15, 1.3);
+createTree(-7, 2, -21, 1.1);
+createTree(7, 3, -29, 1.2);
+createTree(-7, 4, -38, 1.25);
+createTree(7, 5, -47, 1.2);
+createTree(-7, 5, -54, 1.0);
+createTree(7, 6, -62, 1.25);
+
+
+/* =========================================================
+   SNOW PARTICLES
+   ========================================================= */
+
+const snowParticleCount = 700;
+
+const snowPositions =
+    new Float32Array(
+        snowParticleCount * 3
+    );
+
+for (
+    let i = 0;
+    i < snowParticleCount;
+    i++
+) {
+
+    snowPositions[i * 3] =
+        (Math.random() - 0.5) * 45;
+
+    snowPositions[i * 3 + 1] =
+        Math.random() * 25 + 2;
+
+    snowPositions[i * 3 + 2] =
+        -Math.random() * 100 + 15;
+}
+
+const snowGeometry =
+    new THREE.BufferGeometry();
+
+snowGeometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(
+        snowPositions,
+        3
+    )
+);
+
+const snowMaterial =
+    new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.12,
+        transparent: true,
+        opacity: 0.75,
+        depthWrite: false
+    });
+
+const snowParticles =
+    new THREE.Points(
+        snowGeometry,
+        snowMaterial
+    );
+
+scene.add(
+    snowParticles
+);
 
 
 /* =========================================================
    PLAYER
-========================================================= */
+   ========================================================= */
 
 const player =
     new THREE.Group();
 
 player.position.set(
     0,
-    0,
-    2
+    1.25,
+    START_Z
 );
 
 scene.add(player);
 
 
-/* Body */
+/* BODY */
 
 const body =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            1.05,
-            1.35,
-            .7
-        ),
+    box(
+        0.72,
+        0.95,
+        0.5,
         mats.blue
     );
 
 body.position.y =
-    1.0;
-
-body.castShadow = true;
+    0;
 
 player.add(body);
 
 
-/* Head */
+/* COAT */
+
+const coat =
+    box(
+        0.82,
+        0.55,
+        0.56,
+        mats.dark
+    );
+
+coat.position.y =
+    0.08;
+
+player.add(coat);
+
+
+/* HEAD */
 
 const head =
     new THREE.Mesh(
         new THREE.BoxGeometry(
-            .82,
-            .82,
-            .82
+            0.62,
+            0.62,
+            0.62
         ),
-        mats.snow
+        mats.white
     );
 
 head.position.y =
-    2.05;
+    0.82;
 
 head.castShadow = true;
 
 player.add(head);
 
 
-/* Face */
+/* FACE */
 
 const face =
     new THREE.Mesh(
         new THREE.BoxGeometry(
-            .45,
-            .18,
-            .03
+            0.42,
+            0.16,
+            0.04
         ),
-        mats.dark
+        mats.red
     );
 
 face.position.set(
     0,
-    2.08,
-    -.42
+    0.82,
+    -0.32
 );
 
 player.add(face);
 
 
-/* Arms */
+/* HAT */
 
-function makeLimb(
-    x,
-    y,
-    z,
-    sx,
-    sy,
-    sz
-){
-
-    const limb =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                sx,
-                sy,
-                sz
-            ),
-            mats.blue
-        );
-
-    limb.position.set(
-        x,
-        y,
-        z
+const hatBase =
+    cylinder(
+        0.39,
+        0.43,
+        0.16,
+        mats.red,
+        16
     );
 
-    limb.castShadow = true;
+hatBase.position.y =
+    1.18;
 
-    player.add(limb);
+player.add(hatBase);
 
-    return limb;
-}
 
-const armL =
-    makeLimb(
-        -.68,
-        1.05,
-        0,
-        .28,
-        1.05,
-        .32
+const hatTop =
+    cylinder(
+        0.20,
+        0.32,
+        0.38,
+        mats.red,
+        16
     );
 
-const armR =
-    makeLimb(
-        .68,
-        1.05,
-        0,
-        .28,
-        1.05,
-        .32
+hatTop.position.y =
+    1.42;
+
+hatTop.rotation.z =
+    -0.08;
+
+player.add(hatTop);
+
+
+const hatPom =
+    new THREE.Mesh(
+        new THREE.SphereGeometry(
+            0.13,
+            12,
+            12
+        ),
+        mats.white
     );
 
+hatPom.position.set(
+    -0.05,
+    1.64,
+    0
+);
 
-/* Legs */
+hatPom.castShadow = true;
 
-const legL =
-    makeLimb(
-        -.28,
-        .28,
-        0,
-        .32,
-        .8,
-        .36
+player.add(hatPom);
+
+
+/* ARMS */
+
+const leftArm =
+    box(
+        0.22,
+        0.75,
+        0.25,
+        mats.blue
     );
 
-const legR =
-    makeLimb(
-        .28,
-        .28,
-        0,
-        .32,
-        .8,
-        .36
+leftArm.position.set(
+    -0.55,
+    0.02,
+    0
+);
+
+player.add(leftArm);
+
+
+const rightArm =
+    box(
+        0.22,
+        0.75,
+        0.25,
+        mats.blue
     );
+
+rightArm.position.set(
+    0.55,
+    0.02,
+    0
+);
+
+player.add(rightArm);
+
+
+/* LEGS */
+
+const leftLeg =
+    box(
+        0.28,
+        0.72,
+        0.3,
+        mats.dark
+    );
+
+leftLeg.position.set(
+    -0.22,
+    -0.72,
+    0
+);
+
+player.add(leftLeg);
+
+
+const rightLeg =
+    box(
+        0.28,
+        0.72,
+        0.3,
+        mats.dark
+    );
+
+rightLeg.position.set(
+    0.22,
+    -0.72,
+    0
+);
+
+player.add(rightLeg);
+
+
+/* BOOTS */
+
+const leftBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+leftBoot.position.set(
+    -0.22,
+    -1.1,
+    -0.04
+);
+
+player.add(leftBoot);
+
+
+const rightBoot =
+    box(
+        0.32,
+        0.22,
+        0.42,
+        mats.black
+    );
+
+rightBoot.position.set(
+    0.22,
+    -1.1,
+    -0.04
+);
+
+player.add(rightBoot);
 
 
 /* =========================================================
-   PLAYER PHYSICS
-========================================================= */
+   PLAYER STATE
+   ========================================================= */
 
-/*
-    Главная разница:
-
-    Старое управление:
-        position += speed * dt
-
-    Новое:
-        targetSpeed
-            ↓
-        acceleration
-            ↓
-        velocity
-
-    Поэтому персонаж не дёргается.
-*/
-
-let velX = 0;
-let velZ = 0;
-let velY = 0;
+let velocityX = 0;
+let velocityY = 0;
 
 let onGround = false;
 
-let wasOnGround = false;
-
-
-/* Максимальная скорость */
-
-const MAX_SPEED = 7.2;
-
-
-/* Ускорение */
-
-const ACCELERATION = 24;
-
-
-/* Торможение */
-
-const FRICTION = 30;
-
-
-/* Воздух немного менее управляемый */
-
-const AIR_ACCELERATION = 12;
-
-
-/* Гравитация */
-
-const GRAVITY = 22;
-
-
-/* Прыжок */
-
-const JUMP_FORCE = 8.7;
-
-
-/* Coyote time */
-
-const COYOTE_TIME = 0.11;
-
 let coyoteTimer = 0;
-
-
-/* Jump buffer */
-
-const JUMP_BUFFER = 0.13;
-
 let jumpBufferTimer = 0;
 
+let gameOver = false;
+let finished = false;
 
-/* Для более мягкого прыжка */
+let coinCount = 0;
 
-let jumpHeld = false;
+let animTime = 0;
+
+let previousTime =
+    performance.now();
 
 
 /* =========================================================
    INPUT
-========================================================= */
+   ========================================================= */
 
-const keys = {};
+const keys = {
+    left: false,
+    right: false,
+    jump: false
+};
 
-let jumpPressed = false;
+
+function setKey(
+    key,
+    value
+) {
+
+    keys[key] = value;
+
+    if (
+        key === "jump" &&
+        value
+    ) {
+        jumpBufferTimer =
+            JUMP_BUFFER_TIME;
+    }
+}
 
 
-/* Keyboard */
+window.addEventListener(
+    "keydown",
+    function(event) {
 
-addEventListener(
-    'keydown',
-    e=>{
-
-        const key =
-            e.key.toLowerCase();
-
-        keys[key] = true;
-
-        if(e.code === 'Space'){
-
-            keys.space = true;
-
-            jumpPressed = true;
-
-            e.preventDefault();
+        if (
+            event.code === "ArrowLeft" ||
+            event.code === "KeyA"
+        ) {
+            keys.left = true;
+            event.preventDefault();
         }
 
-        if(key === 'w' ||
-           key === 'arrowup'){
-
-            jumpPressed = true;
+        if (
+            event.code === "ArrowRight" ||
+            event.code === "KeyD"
+        ) {
+            keys.right = true;
+            event.preventDefault();
         }
 
-        if(key === 'r'){
+        if (
+            event.code === "Space" ||
+            event.code === "ArrowUp" ||
+            event.code === "KeyW"
+        ) {
+            if (!keys.jump) {
+                setKey(
+                    "jump",
+                    true
+                );
+            }
 
-            restartGame();
+            event.preventDefault();
         }
 
+        if (
+            event.code === "KeyR" &&
+            gameOver
+        ) {
+            location.reload();
+        }
     },
-    {passive:false}
+    {
+        passive: false
+    }
 );
 
 
-addEventListener(
-    'keyup',
-    e=>{
+window.addEventListener(
+    "keyup",
+    function(event) {
 
-        const key =
-            e.key.toLowerCase();
-
-        keys[key] = false;
-
-        if(e.code === 'Space'){
-
-            keys.space = false;
+        if (
+            event.code === "ArrowLeft" ||
+            event.code === "KeyA"
+        ) {
+            keys.left = false;
+            event.preventDefault();
         }
 
+        if (
+            event.code === "ArrowRight" ||
+            event.code === "KeyD"
+        ) {
+            keys.right = false;
+            event.preventDefault();
+        }
+
+        if (
+            event.code === "Space" ||
+            event.code === "ArrowUp" ||
+            event.code === "KeyW"
+        ) {
+            keys.jump = false;
+            event.preventDefault();
+        }
+    },
+    {
+        passive: false
     }
 );
 
 
 /* =========================================================
    MOBILE CONTROLS
-========================================================= */
+   ========================================================= */
 
-function setupTouchButton(
+function holdButton(
     element,
     key
-){
+) {
 
     element.addEventListener(
-        'pointerdown',
-        e=>{
+        "pointerdown",
+        function(event) {
 
-            e.preventDefault();
+            event.preventDefault();
 
-            try{
-                element.setPointerCapture(
-                    e.pointerId
+            element.setPointerCapture(
+                event.pointerId
+            );
+
+            setKey(
+                key,
+                true
+            );
+        }
+    );
+
+    element.addEventListener(
+        "pointerup",
+        function(event) {
+
+            event.preventDefault();
+
+            setKey(
+                key,
+                false
+            );
+        }
+    );
+
+    element.addEventListener(
+        "pointercancel",
+        function() {
+
+            setKey(
+                key,
+                false
+            );
+        }
+    );
+
+    element.addEventListener(
+        "pointerleave",
+        function(event) {
+
+            if (
+                event.buttons === 0
+            ) {
+                setKey(
+                    key,
+                    false
                 );
-            }catch(_){}
-
-            keys[key] = true;
-
-            if(key === 'space'){
-
-                jumpPressed = true;
             }
-
         }
     );
-
-
-    element.addEventListener(
-        'pointerup',
-        e=>{
-
-            e.preventDefault();
-
-            keys[key] = false;
-
-        }
-    );
-
-
-    element.addEventListener(
-        'pointercancel',
-        e=>{
-
-            keys[key] = false;
-
-        }
-    );
-
-
-    element.addEventListener(
-        'pointerleave',
-        e=>{
-
-            if(e.buttons === 0){
-
-                keys[key] = false;
-
-            }
-
-        }
-    );
-
 }
 
 
-setupTouchButton(
-    document.getElementById('left'),
-    'a'
-);
-
-setupTouchButton(
-    document.getElementById('right'),
-    'd'
-);
-
-setupTouchButton(
-    document.getElementById('jump'),
-    'space'
-);
-
-
-/* =========================================================
-   LEADERBOARD
-========================================================= */
-
-const LEADERBOARD_KEY =
-    'winter_block_parkour_leaderboard_v1';
-
-
-function getLeaderboard(){
-
-    try{
-
-        const data =
-            localStorage.getItem(
-                LEADERBOARD_KEY
-            );
-
-        if(!data) return [];
-
-        const parsed =
-            JSON.parse(data);
-
-        if(!Array.isArray(parsed))
-            return [];
-
-        return parsed
-            .filter(x =>
-                x &&
-                typeof x.name === 'string' &&
-                Number.isFinite(x.time)
-            )
-            .sort(
-                (a,b)=>a.time-b.time
-            )
-            .slice(0,10);
-
-    }catch(e){
-
-        return [];
-
-    }
-
-}
-
-
-function saveLeaderboard(data){
-
-    try{
-
-        localStorage.setItem(
-            LEADERBOARD_KEY,
-            JSON.stringify(
-                data.slice(0,10)
-            )
-        );
-
-    }catch(e){}
-
-}
-
-
-function renderLeaderboard(){
-
-    const list =
-        getLeaderboard();
-
-    const element =
-        document.getElementById(
-            'leaderboard'
-        );
-
-    if(!list.length){
-
-        element.innerHTML =
-            '<div class="empty">Пока нет результатов</div>';
-
-        return;
-    }
-
-
-    element.innerHTML =
-        list.map(
-            (item,index)=>`
-
-                <div class="row">
-
-                    <div class="rank">
-                        ${index+1}
-                    </div>
-
-                    <div>
-                        ${escapeHtml(item.name)}
-                    </div>
-
-                    <div class="score">
-                        ${item.time.toFixed(1)} с
-                    </div>
-
-                </div>
-
-            `
-        ).join('');
-
-}
-
-
-function escapeHtml(text){
-
-    return String(text)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
-
-}
-
-
-/* =========================================================
-   UI
-========================================================= */
-
-const coinsElement =
-    document.getElementById('coins');
-
-const timeElement =
-    document.getElementById('time');
-
-const bestTimeElement =
-    document.getElementById('bestTime');
-
-const finishScreen =
-    document.getElementById('finishScreen');
-
-const leaderboardScreen =
+holdButton(
     document.getElementById(
-        'leaderboardScreen'
-    );
+        "leftButton"
+    ),
+    "left"
+);
+
+holdButton(
+    document.getElementById(
+        "rightButton"
+    ),
+    "right"
+);
+
+holdButton(
+    document.getElementById(
+        "jumpButton"
+    ),
+    "jump"
+);
 
 
-function updateBestUI(){
+/* =========================================================
+   COLLISION HELPERS
+   ========================================================= */
 
-    const list =
-        getLeaderboard();
-
-    if(list.length){
-
-        bestTimeElement.textContent =
-            list[0].time.toFixed(1)+' с';
-
-    }else{
-
-        bestTimeElement.textContent =
-            '—';
-
-    }
-
+function playerHalfWidth() {
+    return PLAYER_WIDTH / 2;
 }
 
-updateBestUI();
 
+function isInsidePlatformX(
+    p,
+    platformData
+) {
 
-/* Leaderboard open */
+    const half =
+        playerHalfWidth();
 
-document
-    .getElementById(
-        'leaderboardButton'
-    )
-    .addEventListener(
-        'click',
-        ()=>{
-
-            renderLeaderboard();
-
-            leaderboardScreen.style.display =
-                'flex';
-
-        }
+    return (
+        p.position.x + half >
+        platformData.x -
+        platformData.width / 2
+        &&
+        p.position.x - half <
+        platformData.x +
+        platformData.width / 2
     );
+}
 
 
-/* Leaderboard close */
+function isInsidePlatformZ(
+    p,
+    platformData
+) {
 
-document
-    .getElementById(
-        'closeLeaderboard'
-    )
-    .addEventListener(
-        'click',
-        ()=>{
+    const half =
+        0.35;
 
-            leaderboardScreen.style.display =
-                'none';
-
-        }
+    return (
+        p.position.z + half >
+        platformData.z -
+        platformData.depth / 2
+        &&
+        p.position.z - half <
+        platformData.z +
+        platformData.depth / 2
     );
+}
 
 
-/* Save score */
+/* =========================================================
+   PLATFORM COLLISION
+   ========================================================= */
 
-document
-    .getElementById(
-        'saveScore'
-    )
-    .addEventListener(
-        'click',
-        saveScore
-    );
+function updateGroundCollision() {
 
+    const oldY =
+        player.position.y;
 
-/* Enter = save */
+    const bottom =
+        player.position.y -
+        PLAYER_HEIGHT / 2;
 
-document
-    .getElementById(
-        'playerName'
-    )
-    .addEventListener(
-        'keydown',
-        e=>{
+    let landingPlatform = null;
 
-            if(e.key === 'Enter'){
+    for (
+        const p of platforms
+    ) {
 
-                saveScore();
-
-            }
-
-        }
-    );
-
-
-function saveScore(){
-
-    let name =
-        document
-            .getElementById(
-                'playerName'
+        if (
+            !isInsidePlatformX(
+                player,
+                p
             )
-            .value
-            .trim();
+        ) {
+            continue;
+        }
 
-    if(!name){
+        if (
+            !isInsidePlatformZ(
+                player,
+                p
+            )
+        ) {
+            continue;
+        }
 
-        name = 'Игрок';
+        const top =
+            p.top;
 
+        if (
+            velocityY <= 0 &&
+            bottom <= top + 0.35 &&
+            bottom >= top - 1.0
+        ) {
+
+            landingPlatform = p;
+            break;
+        }
     }
 
-    const result = {
+    if (landingPlatform) {
 
-        name:name.slice(0,16),
+        player.position.y =
+            landingPlatform.top +
+            PLAYER_HEIGHT / 2;
 
-        time:finalRunTime
+        velocityY = 0;
 
-    };
-
-
-    const list =
-        getLeaderboard();
-
-    list.push(result);
-
-    list.sort(
-        (a,b)=>a.time-b.time
-    );
-
-    saveLeaderboard(
-        list.slice(0,10)
-    );
-
-    updateBestUI();
-
-    finishScreen.style.display =
-        'none';
-
-    renderLeaderboard();
-
-    leaderboardScreen.style.display =
-        'flex';
-
-}
-
-
-/* =========================================================
-   GAME STATE
-========================================================= */
-
-let coins = 0;
-
-let startTime =
-    performance.now();
-
-let finished = false;
-
-let finalRunTime = 0;
-
-
-/* =========================================================
-   RESET GAME
-========================================================= */
-
-function restartGame(){
-
-    location.reload();
-
-}
-
-
-/* =========================================================
-   JUMP
-========================================================= */
-
-function doJump(){
-
-    velY =
-        JUMP_FORCE;
-
-    onGround = false;
-
-    coyoteTimer = 0;
-
-    jumpBufferTimer = 0;
-
-}
-
-
-/* =========================================================
-   UPDATE PLAYER MOVEMENT
-========================================================= */
-
-function updateMovement(dt){
-
-    let inputX = 0;
-    let inputZ = 0;
-
-
-    /* Horizontal */
-
-    if(
-        keys.a ||
-        keys.arrowleft
-    ){
-
-        inputX -= 1;
-
-    }
-
-
-    if(
-        keys.d ||
-        keys.arrowright
-    ){
-
-        inputX += 1;
-
-    }
-
-
-    /* Forward/backward */
-
-    if(
-        keys.w ||
-        keys.arrowup
-    ){
-
-        inputZ -= 1;
-
-    }
-
-
-    if(
-        keys.s ||
-        keys.arrowdown
-    ){
-
-        inputZ += 1;
-
-    }
-
-
-    /* Normalize diagonal */
-
-    const inputLength =
-        Math.hypot(
-            inputX,
-            inputZ
-        );
-
-    if(inputLength > 1){
-
-        inputX /= inputLength;
-        inputZ /= inputLength;
-
-    }
-
-
-    /*
-        Для этого уровня основное
-        движение вперёд идёт по Z.
-
-        Поэтому если игрок держит
-        W — он идёт вперёд.
-    */
-
-    const targetX =
-        inputX * MAX_SPEED;
-
-    const targetZ =
-        inputZ * MAX_SPEED;
-
-
-    const accel =
-        onGround
-            ? ACCELERATION
-            : AIR_ACCELERATION;
-
-
-    /*
-        Плавно приближаем скорость
-        к целевой.
-    */
-
-    if(Math.abs(targetX) > .01){
-
-        velX =
-            THREE.MathUtils.damp(
-                velX,
-                targetX,
-                accel,
-                dt
-            );
-
-    }else{
-
-        velX =
-            THREE.MathUtils.damp(
-                velX,
-                0,
-                FRICTION,
-                dt
-            );
-
-    }
-
-
-    if(Math.abs(targetZ) > .01){
-
-        velZ =
-            THREE.MathUtils.damp(
-                velZ,
-                targetZ,
-                accel,
-                dt
-            );
-
-    }else{
-
-        velZ =
-            THREE.MathUtils.damp(
-                velZ,
-                0,
-                FRICTION,
-                dt
-            );
-
-    }
-
-
-    player.position.x +=
-        velX * dt;
-
-    player.position.z +=
-        velZ * dt;
-
-}
-
-
-/* =========================================================
-   UPDATE PHYSICS
-========================================================= */
-
-function updatePhysics(dt){
-
-    wasOnGround =
-        onGround;
-
-
-    /* Coyote time */
-
-    if(onGround){
+        onGround = true;
 
         coyoteTimer =
             COYOTE_TIME;
 
-    }else{
+    } else {
 
-        coyoteTimer =
-            Math.max(
-                0,
-                coyoteTimer-dt
-            );
+        onGround = false;
 
+        if (
+            oldY >
+            player.position.y
+        ) {
+            coyoteTimer = 0;
+        }
+    }
+}
+
+
+/* =========================================================
+   HAZARD COLLISION
+   ========================================================= */
+
+function checkHazards() {
+
+    const px =
+        player.position.x;
+
+    const py =
+        player.position.y;
+
+    const pz =
+        player.position.z;
+
+    for (
+        const h of hazards
+    ) {
+
+        const hx =
+            h.x;
+
+        const hy =
+            h.y;
+
+        const hz =
+            h.z;
+
+        const hitX =
+            Math.abs(px - hx) <
+            (PLAYER_WIDTH / 2 +
+             h.width / 2);
+
+        const hitY =
+            Math.abs(py - hy) <
+            (PLAYER_HEIGHT / 2 +
+             h.height / 2);
+
+        const hitZ =
+            Math.abs(pz - hz) <
+            (0.45 +
+             h.depth / 2);
+
+        if (
+            hitX &&
+            hitY &&
+            hitZ
+        ) {
+            return true;
+        }
     }
 
-
-    /* Jump buffer */
-
-    if(jumpPressed){
-
-        jumpBufferTimer =
-            JUMP_BUFFER;
-
-        jumpPressed = false;
-
-    }else{
-
-        jumpBufferTimer =
-            Math.max(
-                0,
-                jumpBufferTimer-dt
-            );
-
-    }
+    return false;
+}
 
 
-    /*
-        Прыжок.
+/* =========================================================
+   COIN COLLECTION
+   ========================================================= */
 
-        Он срабатывает либо когда
-        стоим на земле, либо в
-        течение coyote time.
-    */
+function updateCoins(
+    time
+) {
 
-    if(
-        jumpBufferTimer > 0 &&
-        (onGround || coyoteTimer > 0)
-    ){
+    for (
+        const coin of coins
+    ) {
 
-        doJump();
-
-    }
-
-
-    /* Gravity */
-
-    if(
-        !jumpHeld &&
-        velY > 0 &&
-        !onGround
-    ){
-
-        /*
-            Если кнопку отпустили
-            раньше — прыжок становится
-            ниже и приятнее.
-        */
-
-        velY -=
-            GRAVITY * 1.25 * dt;
-
-    }else{
-
-        velY -=
-            GRAVITY * dt;
-
-    }
-
-
-    player.position.y +=
-        velY * dt;
-
-
-    /* Ground collision */
-
-    onGround = false;
-
-
-    for(const p of platforms){
-
-        const hw =
-            p.geometry.parameters.width/2;
-
-        const hd =
-            p.geometry.parameters.depth/2;
-
-        const top =
-            p.position.y +
-            p.geometry.parameters.height/2;
-
-
-        const insideX =
-            player.position.x >
-                p.position.x-hw-.42 &&
-            player.position.x <
-                p.position.x+hw+.42;
-
-
-        const insideZ =
-            player.position.z >
-                p.position.z-hd-.42 &&
-            player.position.z <
-                p.position.z+hd+.42;
-
-
-        if(
-            insideX &&
-            insideZ &&
-            player.position.y <= top+.18 &&
-            player.position.y >= top-1.25 &&
-            velY <= 0
-        ){
-
-            player.position.y =
-                top;
-
-            velY = 0;
-
-            onGround = true;
-
+        if (
+            coin.collected
+        ) {
+            continue;
         }
 
+        coin.mesh.rotation.y +=
+            3.2 * time;
+
+        coin.mesh.rotation.z +=
+            1.1 * time;
+
+        coin.mesh.position.y =
+            coin.baseY +
+            Math.sin(
+                animTime * 3 +
+                coin.phase
+            ) * 0.14;
+
+        const dx =
+            player.position.x -
+            coin.mesh.position.x;
+
+        const dy =
+            player.position.y -
+            coin.mesh.position.y;
+
+        const dz =
+            player.position.z -
+            coin.mesh.position.z;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy +
+                dz * dz
+            );
+
+        if (
+            distance < 1.0
+        ) {
+
+            coin.collected = true;
+
+            coin.mesh.visible = false;
+
+            coinCount++;
+
+            updateUI();
+        }
     }
-
-
-    /*
-        Если персонаж упал.
-    */
-
-    if(
-        player.position.y < -8 ||
-        Math.abs(player.position.x) > 30
-    ){
-
-        restartGame();
-
-    }
-
 }
 
 
 /* =========================================================
    PLAYER ANIMATION
-========================================================= */
+   ========================================================= */
 
-let animationTime = 0;
+function updatePlayerAnimation(
+    dt
+) {
 
-
-function updatePlayerAnimation(dt){
-
-    animationTime += dt;
-
-
-    const horizontalSpeed =
-        Math.hypot(
-            velX,
-            velZ
-        );
-
+    animTime += dt;
 
     const moving =
-        horizontalSpeed > .35 &&
-        onGround;
+        Math.abs(velocityX) > 0.3;
 
-
-    if(moving){
-
-        const walkSpeed =
-            8 + horizontalSpeed*.45;
+    if (
+        onGround &&
+        moving
+    ) {
 
         const swing =
             Math.sin(
-                animationTime*walkSpeed
-            )*.55;
+                animTime * 12
+            ) * 0.65;
 
-        armL.rotation.x =
+        leftArm.rotation.x =
             swing;
 
-        armR.rotation.x =
+        rightArm.rotation.x =
             -swing;
 
-        legL.rotation.x =
+        leftLeg.rotation.x =
             -swing;
 
-        legR.rotation.x =
+        rightLeg.rotation.x =
             swing;
 
-
-        body.position.y =
-            1 +
+        player.position.y +=
             Math.abs(
                 Math.sin(
-                    animationTime*walkSpeed*2
+                    animTime * 12
                 )
-            )*.035;
+            ) * 0.025;
 
+    } else {
 
-        player.rotation.z =
+        leftArm.rotation.x =
             THREE.MathUtils.damp(
-                player.rotation.z,
-                -velX*.025,
-                10,
-                dt
-            );
-
-    }else{
-
-        /*
-            Плавно возвращаем
-            конечности.
-        */
-
-        armL.rotation.x =
-            THREE.MathUtils.damp(
-                armL.rotation.x,
-                0,
-                12,
-                dt
-            );
-
-        armR.rotation.x =
-            THREE.MathUtils.damp(
-                armR.rotation.x,
-                0,
-                12,
-                dt
-            );
-
-        legL.rotation.x =
-            THREE.MathUtils.damp(
-                legL.rotation.x,
-                0,
-                12,
-                dt
-            );
-
-        legR.rotation.x =
-            THREE.MathUtils.damp(
-                legR.rotation.x,
-                0,
-                12,
-                dt
-            );
-
-    }
-
-
-    /*
-        Прыжок
-    */
-
-    if(!onGround){
-
-        const jumpTilt =
-            THREE.MathUtils.clamp(
-                -velY*.025,
-                -.28,
-                .28
-            );
-
-        player.rotation.x =
-            THREE.MathUtils.damp(
-                player.rotation.x,
-                jumpTilt,
-                8,
-                dt
-            );
-
-        armL.rotation.x =
-            THREE.MathUtils.damp(
-                armL.rotation.x,
-                -.35,
-                8,
-                dt
-            );
-
-        armR.rotation.x =
-            THREE.MathUtils.damp(
-                armR.rotation.x,
-                -.35,
-                8,
-                dt
-            );
-
-    }else{
-
-        player.rotation.x =
-            THREE.MathUtils.damp(
-                player.rotation.x,
+                leftArm.rotation.x,
                 0,
                 10,
                 dt
             );
 
+        rightArm.rotation.x =
+            THREE.MathUtils.damp(
+                rightArm.rotation.x,
+                0,
+                10,
+                dt
+            );
+
+        leftLeg.rotation.x =
+            THREE.MathUtils.damp(
+                leftLeg.rotation.x,
+                0,
+                10,
+                dt
+            );
+
+        rightLeg.rotation.x =
+            THREE.MathUtils.damp(
+                rightLeg.rotation.x,
+                0,
+                10,
+                dt
+            );
     }
 
+    if (
+        !onGround
+    ) {
+
+        leftArm.rotation.x =
+            -0.35;
+
+        rightArm.rotation.x =
+            -0.35;
+
+        leftLeg.rotation.x =
+            0.25;
+
+        rightLeg.rotation.x =
+            -0.25;
+    }
+
+    const targetTilt =
+        -velocityX * 0.055;
+
+    player.rotation.z =
+        THREE.MathUtils.damp(
+            player.rotation.z,
+            targetTilt,
+            8,
+            dt
+        );
+
+    const targetY =
+        onGround
+            ? 0
+            : Math.min(
+                0.12,
+                Math.abs(velocityY) * 0.01
+            );
+
+    body.position.y =
+        THREE.MathUtils.damp(
+            body.position.y,
+            targetY,
+            10,
+            dt
+        );
 }
 
 
 /* =========================================================
-   COINS
-========================================================= */
+   PLAYER MOVEMENT
+   ========================================================= */
 
-function updateCoins(dt){
+function updatePlayer(
+    dt
+) {
 
-    for(const object of scene.children){
-
-        if(
-            object.userData &&
-            object.userData.coin &&
-            !object.userData.taken
-        ){
-
-            object.rotation.z +=
-                dt*5;
-
-
-            if(
-                object.position.distanceTo(
-                    player.position
-                ) < 1.35
-            ){
-
-                object.userData.taken =
-                    true;
-
-                object.visible =
-                    false;
-
-                coins++;
-
-                coinsElement.textContent =
-                    coins;
-
-            }
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   FINISH
-========================================================= */
-
-function finishGame(){
-
-    if(finished)
+    if (
+        gameOver ||
+        finished
+    ) {
         return;
+    }
 
-    finished = true;
+    /* AUTO FORWARD */
 
-    finalRunTime =
-        (performance.now()-startTime)/1000;
+    player.position.z -=
+        AUTO_SPEED * dt;
 
-    document
-        .getElementById(
-            'finalTime'
+
+    /* HORIZONTAL INPUT */
+
+    let direction = 0;
+
+    if (keys.left) {
+        direction -= 1;
+    }
+
+    if (keys.right) {
+        direction += 1;
+    }
+
+
+    /* SMOOTH ACCELERATION */
+
+    if (direction !== 0) {
+
+        const target =
+            direction *
+            SIDE_SPEED;
+
+        velocityX =
+            THREE.MathUtils.damp(
+                velocityX,
+                target,
+                SIDE_ACCEL,
+                dt
+            );
+
+    } else {
+
+        velocityX =
+            THREE.MathUtils.damp(
+                velocityX,
+                0,
+                SIDE_FRICTION,
+                dt
+            );
+    }
+
+
+    player.position.x +=
+        velocityX * dt;
+
+
+    player.position.x =
+        THREE.MathUtils.clamp(
+            player.position.x,
+            -WORLD_LIMIT_X,
+            WORLD_LIMIT_X
+        );
+
+
+    /* COYOTE TIME */
+
+    if (
+        !onGround &&
+        coyoteTimer > 0
+    ) {
+        coyoteTimer -= dt;
+    }
+
+
+    /* JUMP BUFFER */
+
+    if (
+        jumpBufferTimer > 0
+    ) {
+        jumpBufferTimer -= dt;
+    }
+
+
+    /* JUMP */
+
+    if (
+        jumpBufferTimer > 0 &&
+        (
+            onGround ||
+            coyoteTimer > 0
         )
-        .textContent =
-        finalRunTime.toFixed(1);
+    ) {
 
-    document
-        .getElementById(
-            'finalCoins'
-        )
-        .textContent =
-        coins;
+        velocityY =
+            JUMP_FORCE;
 
-    document
-        .getElementById(
-            'playerName'
-        )
-        .value = '';
+        onGround = false;
 
-    finishScreen.style.display =
-        'flex';
+        coyoteTimer = 0;
 
+        jumpBufferTimer = 0;
+    }
+
+
+    /* GRAVITY */
+
+    velocityY -=
+        GRAVITY * dt;
+
+
+    /* SHORT JUMP */
+
+    if (
+        !keys.jump &&
+        velocityY > 0
+    ) {
+
+        velocityY -=
+            GRAVITY * 0.65 * dt;
+    }
+
+
+    player.position.y +=
+        velocityY * dt;
+
+
+    updateGroundCollision();
+
+
+    /* FALL */
+
+    if (
+        player.position.y < -8
+    ) {
+
+        showGameOver(
+            "Ты упал!"
+        );
+
+        return;
+    }
+
+
+    /* HAZARDS */
+
+    if (
+        checkHazards()
+    ) {
+
+        showGameOver(
+            "Ой! Препятствие!"
+        );
+
+        return;
+    }
+
+
+    /* FINISH */
+
+    if (
+        player.position.z <
+        FINISH_Z
+    ) {
+
+        finishGame();
+    }
 }
 
 
 /* =========================================================
    CAMERA
-========================================================= */
+   ========================================================= */
 
-const cameraTarget =
-    new THREE.Vector3();
+function updateCamera(
+    dt
+) {
 
+    const targetX =
+        player.position.x * 0.38;
 
-function updateCamera(dt){
+    const targetY =
+        player.position.y + 5.2;
 
-    /*
-        Камера следует за игроком
-        через damp, поэтому нет рывков.
-    */
-
-    cameraTarget.set(
-        player.position.x,
-        player.position.y+6,
-        player.position.z+11
-    );
-
+    const targetZ =
+        player.position.z + 10.5;
 
     camera.position.x =
         THREE.MathUtils.damp(
             camera.position.x,
-            cameraTarget.x,
+            targetX,
             5.5,
             dt
         );
@@ -2101,7 +2358,7 @@ function updateCamera(dt){
     camera.position.y =
         THREE.MathUtils.damp(
             camera.position.y,
-            cameraTarget.y,
+            targetY,
             5.5,
             dt
         );
@@ -2109,148 +2366,322 @@ function updateCamera(dt){
     camera.position.z =
         THREE.MathUtils.damp(
             camera.position.z,
-            cameraTarget.z,
-            5.5,
+            targetZ,
+            7,
             dt
         );
 
-
     const lookTarget =
         new THREE.Vector3(
-            player.position.x,
-            player.position.y+1,
-            player.position.z-7
+            player.position.x * 0.35,
+            player.position.y + 0.6,
+            player.position.z - 8
         );
-
 
     camera.lookAt(
         lookTarget
     );
-
 }
 
 
 /* =========================================================
-   GAME LOOP
-========================================================= */
+   SNOW ANIMATION
+   ========================================================= */
 
-const clock =
-    new THREE.Clock();
+function updateSnow(
+    dt
+) {
 
+    const position =
+        snowParticles.geometry
+            .attributes
+            .position;
 
-function update(){
+    for (
+        let i = 0;
+        i < snowParticleCount;
+        i++
+    ) {
 
-    if(finished)
-        return;
+        let x =
+            position.array[i * 3];
 
+        let y =
+            position.array[i * 3 + 1];
 
-    const dt =
-        Math.min(
-            clock.getDelta(),
-            .033
-        );
+        let z =
+            position.array[i * 3 + 2];
 
+        y -=
+            dt * 1.8;
 
-    /* Update jump held */
+        z +=
+            AUTO_SPEED * dt * 0.25;
 
-    jumpHeld =
-        !!(
-            keys.space ||
-            keys.w ||
-            keys.arrowup
-        );
+        x +=
+            Math.sin(
+                animTime * 0.8 +
+                i
+            ) * dt * 0.15;
 
+        if (
+            y < 0
+        ) {
+            y = 27;
+        }
 
-    updateMovement(dt);
+        if (
+            z > player.position.z + 18
+        ) {
+            z =
+                player.position.z - 100;
+        }
 
-    updatePhysics(dt);
+        position.array[i * 3] =
+            x;
 
-    updatePlayerAnimation(dt);
+        position.array[i * 3 + 1] =
+            y;
 
-    updateCoins(dt);
-
-    updateCamera(dt);
-
-
-    /*
-        Finish line
-    */
-
-    if(
-        player.position.z < -61 &&
-        player.position.y > 6.2
-    ){
-
-        finishGame();
-
+        position.array[i * 3 + 2] =
+            z;
     }
 
-
-    timeElement.textContent =
-        (
-            (performance.now()-startTime)
-            /1000
-        ).toFixed(1);
-
+    position.needsUpdate = true;
 }
 
 
 /* =========================================================
-   LOOP
-========================================================= */
+   UI
+   ========================================================= */
 
-function loop(){
+function updateUI() {
 
-    requestAnimationFrame(loop);
+    document.getElementById(
+        "coinsUI"
+    ).textContent =
+        "❄️ Монеты: " +
+        coinCount;
 
-    update();
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-}
-
-loop();
-
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
-addEventListener(
-    'resize',
-    ()=>{
-
-        camera.aspect =
-            innerWidth/innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-            innerWidth,
-            innerHeight
+    const distance =
+        Math.max(
+            0,
+            Math.round(
+                START_Z -
+                player.position.z
+            )
         );
 
+    document.getElementById(
+        "distanceUI"
+    ).textContent =
+        "Дистанция: " +
+        distance +
+        " м";
+}
+
+
+/* =========================================================
+   GAME OVER
+   ========================================================= */
+
+function showGameOver(
+    text
+) {
+
+    if (
+        gameOver
+    ) {
+        return;
+    }
+
+    gameOver = true;
+
+    document.getElementById(
+        "messageTitle"
+    ).textContent =
+        "Игра окончена";
+
+    document.getElementById(
+        "messageText"
+    ).textContent =
+        text +
+        " Монеты: " +
+        coinCount;
+
+    document.getElementById(
+        "message"
+    ).classList.add(
+        "show"
+    );
+}
+
+
+/* =========================================================
+   FINISH
+   ========================================================= */
+
+function finishGame() {
+
+    if (
+        finished
+    ) {
+        return;
+    }
+
+    finished = true;
+
+    document.getElementById(
+        "messageTitle"
+    ).textContent =
+        "🏆 Финиш!";
+
+    document.getElementById(
+        "messageText"
+    ).textContent =
+        "Ты прошёл зимний паркур и собрал " +
+        coinCount +
+        " из " +
+        coins.length +
+        " монет.";
+
+    document.getElementById(
+        "message"
+    ).classList.add(
+        "show"
+    );
+}
+
+
+/* =========================================================
+   RESTART
+   ========================================================= */
+
+document.getElementById(
+    "restartButton"
+).addEventListener(
+    "click",
+    function() {
+
+        location.reload();
     }
 );
 
 
 /* =========================================================
-   PREVENT MOBILE GESTURES
-========================================================= */
+   RESIZE
+   ========================================================= */
 
-document.addEventListener(
-    'touchmove',
-    e=>{
-        e.preventDefault();
-    },
-    {passive:false}
+window.addEventListener(
+    "resize",
+    function() {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
+        );
+    }
+);
+
+
+/* =========================================================
+   INITIAL CAMERA
+   ========================================================= */
+
+camera.position.set(
+    0,
+    5.2,
+    13
+);
+
+camera.lookAt(
+    0,
+    1,
+    -5
+);
+
+
+/* =========================================================
+   GAME LOOP
+   ========================================================= */
+
+function animate(
+    currentTime
+) {
+
+    requestAnimationFrame(
+        animate
+    );
+
+    let dt =
+        (currentTime -
+         previousTime) /
+        1000;
+
+    previousTime =
+        currentTime;
+
+    dt =
+        Math.min(
+            dt,
+            0.033
+        );
+
+
+    updatePlayer(
+        dt
+    );
+
+    updateCamera(
+        dt
+    );
+
+    updateCoins(
+        dt
+    );
+
+    updatePlayerAnimation(
+        dt
+    );
+
+    updateSnow(
+        dt
+    );
+
+    updateUI();
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+updateUI();
+
+requestAnimationFrame(
+    animate
 );
 
 </script>
 
 </body>
 </html>
-```
