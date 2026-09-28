@@ -2,93 +2,213 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+>
 
 <title>Winter Block Parkour</title>
 
 <style>
-html,body{
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
   margin:0;
+  width:100%;
   height:100%;
   overflow:hidden;
-  background:#9edcff;
-  font-family:Arial,sans-serif;
+  background:#071b32;
+  font-family:Arial,Helvetica,sans-serif;
   touch-action:none;
+  user-select:none;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
 }
 
 #ui{
   position:fixed;
   inset:0;
   pointer-events:none;
-  color:#fff;
-  text-shadow:0 2px 4px #245;
+  color:white;
+  text-shadow:0 2px 5px #00192e;
 }
 
 #title{
   position:absolute;
-  top:16px;
+  top:18px;
   left:18px;
   font-size:24px;
-  font-weight:800;
+  font-weight:900;
+  letter-spacing:.5px;
 }
 
 #stats{
   position:absolute;
-  top:52px;
+  top:58px;
   left:18px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.stat{
+  padding:8px 12px;
+  border-radius:14px;
+  background:#062d4dcc;
+  border:1px solid #9eeaff66;
+  backdrop-filter:blur(6px);
+  font-weight:800;
+}
+
+#musicButton{
+  position:absolute;
+  top:18px;
+  right:18px;
+  pointer-events:auto;
+  border:1px solid #ffffff88;
+  border-radius:16px;
+  padding:10px 15px;
+  background:#ffffffdd;
+  color:#103652;
+  font-weight:900;
   font-size:15px;
+  box-shadow:0 5px 15px #00182c55;
+}
+
+#checkpointText{
+  position:absolute;
+  top:110px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:9px 16px;
+  border-radius:18px;
+  background:#087bc9cc;
+  opacity:0;
+  transition:opacity .25s;
+  font-weight:900;
+}
+
+#message{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(90%,430px);
+  padding:30px;
+  text-align:center;
+  border-radius:26px;
+  background:#062b48ee;
+  border:2px solid #a9eeff88;
+  box-shadow:0 20px 70px #00182c99;
+  display:none;
+  pointer-events:auto;
+}
+
+#message h1{
+  margin:0 0 12px;
+  font-size:34px;
+}
+
+#message p{
+  margin:8px 0;
+  font-size:17px;
+}
+
+#restartButton{
+  margin-top:18px;
+  border:0;
+  border-radius:16px;
+  padding:13px 24px;
+  background:#56d7ff;
+  color:#06334c;
+  font-weight:900;
+  font-size:17px;
 }
 
 #help{
   position:absolute;
-  bottom:16px;
   left:50%;
+  bottom:15px;
   transform:translateX(-50%);
-  background:#123a55aa;
-  padding:9px 14px;
-  border-radius:12px;
+  padding:9px 15px;
+  border-radius:14px;
+  background:#062b48aa;
   font-size:13px;
   white-space:nowrap;
 }
 
-#music{
+#mobileControls{
   position:fixed;
-  top:18px;
-  right:18px;
-  pointer-events:auto;
-  border:0;
-  border-radius:14px;
-  background:#ffffffcc;
-  color:#17364a;
-  font-weight:800;
-  font-size:15px;
-  padding:10px 14px;
-}
-
-#touch{
-  position:fixed;
-  bottom:22px;
-  left:50%;
-  transform:translateX(-50%);
+  inset:0;
+  pointer-events:none;
   display:none;
-  gap:10px;
-  pointer-events:auto;
 }
 
-#touch button{
-  width:62px;
-  height:62px;
-  border:0;
-  border-radius:18px;
-  background:#ffffffcc;
-  color:#17364a;
+#joystick{
+  position:absolute;
+  left:24px;
+  bottom:25px;
+  width:145px;
+  height:145px;
+  border-radius:50%;
+  border:3px solid #ffffff88;
+  background:#73cfff30;
+  box-shadow:
+    inset 0 0 25px #ffffff18,
+    0 8px 30px #00182c66;
+  pointer-events:auto;
+  touch-action:none;
+}
+
+#joystickInner{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:58px;
+  height:58px;
+  margin-left:-29px;
+  margin-top:-29px;
+  border-radius:50%;
+  background:#f7fdffdd;
+  border:3px solid #8be5ff;
+  box-shadow:0 5px 15px #00182c66;
+}
+
+#jumpButton{
+  position:absolute;
+  right:24px;
+  bottom:35px;
+  width:135px;
+  height:82px;
+  border:2px solid #ffffffaa;
+  border-radius:27px;
+  background:#ffffffdd;
+  color:#073653;
+  font-size:18px;
   font-weight:900;
-  font-size:25px;
+  box-shadow:0 8px 25px #00182c66;
+  pointer-events:auto;
+  touch-action:none;
+}
+
+#jumpButton:active{
+  transform:scale(.95);
 }
 
 @media(max-width:700px){
-  #touch{
-    display:flex;
+
+  #mobileControls{
+    display:block;
   }
 
   #help{
@@ -96,13 +216,45 @@ html,body{
   }
 
   #title{
-    font-size:19px;
+    font-size:18px;
+    top:13px;
+    left:13px;
   }
 
   #stats{
-    font-size:14px;
+    top:45px;
+    left:13px;
   }
+
+  .stat{
+    padding:6px 9px;
+    font-size:12px;
+  }
+
+  #musicButton{
+    top:13px;
+    right:13px;
+    padding:8px 11px;
+    font-size:13px;
+  }
+
 }
+
+@media(max-height:600px){
+
+  #joystick{
+    width:115px;
+    height:115px;
+    bottom:15px;
+  }
+
+  #jumpButton{
+    bottom:20px;
+    height:68px;
+  }
+
+}
+
 </style>
 </head>
 
@@ -110,47 +262,113 @@ html,body{
 
 <div id="ui">
 
-  <div id="title">❄ WINTER BLOCK PARKOUR</div>
+  <div id="title">
+    ❄ WINTER BLOCK PARKOUR
+  </div>
 
   <div id="stats">
-    🪙 Монеты: <span id="coins">0</span>
-    · ⏱ <span id="time">0.0</span>
+
+    <div class="stat">
+      🪙 <span id="coins">0</span>
+    </div>
+
+    <div class="stat">
+      ❤️ <span id="lives">3</span>
+    </div>
+
+    <div class="stat">
+      ⏱ <span id="time">0.0</span>
+    </div>
+
+  </div>
+
+  <button id="musicButton">
+    🎵 Музыка
+  </button>
+
+  <div id="checkpointText">
+    🚩 ЧЕКПОИНТ!
+  </div>
+
+  <div id="help">
+    ← → / A D — поворот · W — ускорение · SPACE — прыжок · R — рестарт
+  </div>
+
+  <div id="message">
+
+    <h1 id="messageTitle">
+      🏆 Победа!
+    </h1>
+
+    <p id="messageText">
+      Ты прошёл зимний паркур!
+    </p>
+
+    <button id="restartButton">
+      Играть снова
+    </button>
+
   </div>
 
 </div>
 
-<button id="music">🎵 Музыка</button>
 
-<div id="touch">
-  <button id="left">↶</button>
-  <button id="jump">↑</button>
-  <button id="right">↷</button>
+<div id="mobileControls">
+
+  <div id="joystick">
+    <div id="joystickInner"></div>
+  </div>
+
+  <button id="jumpButton">
+    ⬆<br>
+    ПРЫЖОК
+  </button>
+
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
 
-const scene = new THREE.Scene();
+/* =========================================================
+   WINTER BLOCK PARKOUR
+   Полная версия
+========================================================= */
 
-scene.background = new THREE.Color(0x9edcff);
 
-scene.fog = new THREE.Fog(
-  0x9edcff,
-  25,
-  105
-);
+/* =========================================================
+   ОСНОВА
+========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
-  65,
-  innerWidth / innerHeight,
-  .1,
-  300
-);
+const scene =
+  new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer({
-  antialias:true
-});
+scene.background =
+  new THREE.Color(0x9ddcff);
+
+scene.fog =
+  new THREE.Fog(
+    0x9ddcff,
+    35,
+    125
+  );
+
+
+const camera =
+  new THREE.PerspectiveCamera(
+    65,
+    innerWidth / innerHeight,
+    .1,
+    400
+  );
+
+
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias:true
+  });
+
 
 renderer.setSize(
   innerWidth,
@@ -163,406 +381,1098 @@ renderer.setPixelRatio(
 
 renderer.shadowMap.enabled = true;
 
+renderer.shadowMap.type =
+  THREE.PCFSoftShadowMap;
+
 document.body.appendChild(
   renderer.domElement
 );
 
 
-/* =========================
+/* =========================================================
    СВЕТ
-========================= */
+========================================================= */
 
-scene.add(
+const hemisphere =
   new THREE.HemisphereLight(
-    0xeaf8ff,
-    0x7896a8,
+    0xdff8ff,
+    0x24496c,
     2.2
-  )
-);
+  );
+
+scene.add(hemisphere);
+
 
 const sun =
   new THREE.DirectionalLight(
     0xffffff,
-    2.4
+    3
   );
 
 sun.position.set(
-  -15,
-  30,
-  10
+  -25,
+  35,
+  20
 );
 
 sun.castShadow = true;
 
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
+
+sun.shadow.camera.left = -70;
+sun.shadow.camera.right = 70;
+sun.shadow.camera.top = 70;
+sun.shadow.camera.bottom = -70;
+
 scene.add(sun);
 
 
-/* =========================
+/* =========================================================
    МАТЕРИАЛЫ
-========================= */
+========================================================= */
 
-const mats = {
+const snowMaterial =
+  new THREE.MeshPhysicalMaterial({
 
-  snow:
-    new THREE.MeshStandardMaterial({
-      color:0xf4fbff,
-      roughness:1
-    }),
+    color:0xf5fcff,
 
-  ice:
-    new THREE.MeshStandardMaterial({
-      color:0x74c9ef,
-      roughness:.35,
-      metalness:.05
-    }),
+    roughness:.75,
 
-  blue:
-    new THREE.MeshStandardMaterial({
-      color:0x2877c8,
-      roughness:.65
-    }),
+    metalness:.02,
 
-  dark:
-    new THREE.MeshStandardMaterial({
-      color:0x183c62,
-      roughness:.8
-    }),
+    clearcoat:.25,
 
-  gold:
-    new THREE.MeshStandardMaterial({
-      color:0xffd34d,
-      emissive:0x5b3e00,
-      emissiveIntensity:.25
-    }),
+    clearcoatRoughness:.4
 
-  red:
-    new THREE.MeshStandardMaterial({
-      color:0xff5964,
-      roughness:.7
-    })
-
-};
+  });
 
 
-/* =========================
-   КУБ
-========================= */
+const iceMaterial =
+  new THREE.MeshPhysicalMaterial({
 
-function box(
+    color:0x55d7ff,
+
+    roughness:.08,
+
+    metalness:.08,
+
+    transmission:.18,
+
+    thickness:1,
+
+    clearcoat:1,
+
+    clearcoatRoughness:.06,
+
+    emissive:0x073d70,
+
+    emissiveIntensity:.18
+
+  });
+
+
+const deepIceMaterial =
+  new THREE.MeshPhysicalMaterial({
+
+    color:0x1978c9,
+
+    roughness:.12,
+
+    metalness:.1,
+
+    clearcoat:1,
+
+    clearcoatRoughness:.05,
+
+    emissive:0x032e65,
+
+    emissiveIntensity:.22
+
+  });
+
+
+const blueMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color:0x146ac2,
+
+    roughness:.55
+
+  });
+
+
+const darkMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color:0x143d61,
+
+    roughness:.8
+
+  });
+
+
+const redMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color:0xff5367,
+
+    roughness:.5,
+
+    emissive:0x5d0614,
+
+    emissiveIntensity:.35
+
+  });
+
+
+const goldMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color:0xffd83d,
+
+    roughness:.2,
+
+    metalness:.65,
+
+    emissive:0x664600,
+
+    emissiveIntensity:.3
+
+  });
+
+
+const crystalMaterial =
+  new THREE.MeshPhysicalMaterial({
+
+    color:0x8cecff,
+
+    transparent:true,
+
+    opacity:.82,
+
+    roughness:.05,
+
+    metalness:.08,
+
+    transmission:.35,
+
+    thickness:.7,
+
+    clearcoat:1,
+
+    emissive:0x1c9dff,
+
+    emissiveIntensity:.25
+
+  });
+
+
+/* =========================================================
+   ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ КУБА
+========================================================= */
+
+function createBox(
   x,
   y,
   z,
-  sx,
-  sy,
-  sz,
-  mat=mats.snow
+  w,
+  h,
+  d,
+  material
 ){
 
-  const m =
+  const mesh =
     new THREE.Mesh(
       new THREE.BoxGeometry(
-        sx,
-        sy,
-        sz
+        w,
+        h,
+        d
       ),
-      mat
+      material
     );
 
-  m.position.set(
+  mesh.position.set(
     x,
     y,
     z
   );
 
-  m.castShadow = true;
-  m.receiveShadow = true;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
 
-  scene.add(m);
+  scene.add(mesh);
 
-  return m;
+  return mesh;
+
 }
 
 
-/* =========================
-   МОНЕТА
-========================= */
-
-function coin(x,y,z){
-
-  const m =
-    new THREE.Mesh(
-      new THREE.CylinderGeometry(
-        .38,
-        .38,
-        .12,
-        24
-      ),
-      mats.gold
-    );
-
-  m.rotation.x =
-    Math.PI / 2;
-
-  m.position.set(
-    x,
-    y,
-    z
-  );
-
-  m.userData.coin = true;
-
-  scene.add(m);
-
-  return m;
-}
-
-
-/* =========================
-   ЁЛКИ
-========================= */
-
-function tree(x,z){
-
-  box(
-    x,
-    2,
-    z,
-    1.1,
-    4,
-    1.1,
-    mats.dark
-  );
-
-  box(
-    x,
-    4.4,
-    z,
-    3.3,
-    2.8,
-    3.3,
-    mats.blue
-  );
-
-  box(
-    x,
-    6,
-    z,
-    2.4,
-    2.2,
-    2.4,
-    mats.snow
-  );
-}
-
-
-for(let i=0;i<34;i++){
-
-  let x =
-    (Math.random()-.5)*70;
-
-  let z =
-    8-Math.random()*110;
-
-  if(Math.abs(x)<7)
-    x += x<0 ? -12 : 12;
-
-  tree(x,z);
-}
-
-
-/* =========================
-   ПЛАТФОРМЫ
-========================= */
+/* =========================================================
+   ЛЕДЯНЫЕ ПЛАТФОРМЫ
+========================================================= */
 
 const platforms = [];
 
-function platform(
+
+function createIcePlatform(
   x,
   y,
   z,
   w,
   d,
-  h=.8,
-  mat=mats.snow
+  h=.8
 ){
 
-  const p =
-    box(
+  const group =
+    new THREE.Group();
+
+  group.position.set(
+    x,
+    y,
+    z
+  );
+
+
+  const main =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        w,
+        h,
+        d
+      ),
+      iceMaterial
+    );
+
+  main.castShadow = true;
+  main.receiveShadow = true;
+
+  group.add(main);
+
+
+  /* снежная верхушка */
+
+  const snowTop =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        w+.08,
+        .18,
+        d+.08
+      ),
+      snowMaterial
+    );
+
+  snowTop.position.y =
+    h/2+.08;
+
+  snowTop.castShadow = true;
+
+  group.add(snowTop);
+
+
+  /* нижний слой льда */
+
+  const bottom =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        w*.86,
+        h*.9,
+        d*.86
+      ),
+      deepIceMaterial
+    );
+
+  bottom.position.y =
+    -.08;
+
+  group.add(bottom);
+
+
+  /* кристаллы */
+
+  addCrystals(
+    group,
+    w,
+    d,
+    h
+  );
+
+
+  scene.add(group);
+
+  platforms.push({
+    object:group,
+    width:w,
+    depth:d,
+    height:h
+  });
+
+  return group;
+
+}
+
+
+/* =========================================================
+   КРИСТАЛЛЫ
+========================================================= */
+
+function addCrystal(
+  parent,
+  x,
+  y,
+  z,
+  scale
+){
+
+  const crystal =
+    new THREE.Mesh(
+      new THREE.OctahedronGeometry(
+        .7,
+        0
+      ),
+      crystalMaterial
+    );
+
+  crystal.position.set(
+    x,
+    y,
+    z
+  );
+
+  crystal.scale.set(
+    scale*.65,
+    scale*1.8,
+    scale*.65
+  );
+
+  crystal.rotation.y =
+    Math.random()*Math.PI;
+
+  crystal.castShadow = true;
+
+  parent.add(crystal);
+
+  return crystal;
+
+}
+
+
+function addCrystals(
+  parent,
+  w,
+  d,
+  h
+){
+
+  const amount =
+    Math.max(
+      2,
+      Math.floor((w+d)/5)
+    );
+
+
+  for(
+    let i=0;
+    i<amount;
+    i++
+  ){
+
+    const side =
+      Math.random()<.5;
+
+    let x;
+    let z;
+
+    if(side){
+
+      x =
+        (Math.random()-.5) *
+        (w-.8);
+
+      z =
+        (Math.random()<.5 ? -1 : 1) *
+        (d/2-.25);
+
+    }else{
+
+      x =
+        (Math.random()<.5 ? -1 : 1) *
+        (w/2-.25);
+
+      z =
+        (Math.random()-.5) *
+        (d-.8);
+
+    }
+
+    addCrystal(
+      parent,
+      x,
+      h/2+.5,
+      z,
+      .45+Math.random()*.45
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   УРОВЕНЬ
+========================================================= */
+
+createIcePlatform(
+  0,0,2,
+  12,10,1
+);
+
+createIcePlatform(
+  0,0,-8,
+  8,7,1
+);
+
+createIcePlatform(
+  4,1,-17,
+  7,7,1
+);
+
+createIcePlatform(
+  -3,2,-27,
+  7,8,1
+);
+
+createIcePlatform(
+  3,3,-38,
+  8,7,1
+);
+
+createIcePlatform(
+  -3,4,-49,
+  7,7,1
+);
+
+createIcePlatform(
+  3,5,-60,
+  9,8,1
+);
+
+createIcePlatform(
+  -1,6,-72,
+  11,9,1
+);
+
+createIcePlatform(
+  2,7,-85,
+  9,8,1
+);
+
+createIcePlatform(
+  -2,8,-98,
+  12,10,1
+);
+
+createIcePlatform(
+  2,9,-112,
+  14,11,1
+);
+
+
+/* =========================================================
+   ОПАСНЫЕ БЛОКИ
+========================================================= */
+
+function createHazard(
+  x,
+  y,
+  z,
+  w,
+  h,
+  d
+){
+
+  const hazard =
+    createBox(
       x,
       y,
       z,
       w,
       h,
       d,
-      mat
+      redMaterial
     );
 
-  platforms.push(p);
+  hazard.userData.hazard =
+    true;
 
-  return p;
+  return hazard;
+
 }
 
 
-platform(0,0,2,10,8);
-platform(0,0,-6,7,7);
-platform(4,1,-15,6,6,mats.ice);
-platform(-2,2,-24,5,6);
-platform(3,3,-33,6,5,mats.snow);
-platform(-3,4,-42,5,6,mats.ice);
-platform(2,5,-52,7,7);
-platform(0,6,-63,9,8,mats.snow);
+createHazard(
+  0,1,-5,
+  2,.9,1
+);
+
+createHazard(
+  4,2,-14,
+  1.8,1,1.8
+);
+
+createHazard(
+  -3,3,-24,
+  2,1.2,1
+);
+
+createHazard(
+  3,4,-35,
+  2,1.1,1.4
+);
+
+createHazard(
+  -3,5,-46,
+  1.8,1.2,1.4
+);
+
+createHazard(
+  3,6,-57,
+  2,1.2,1.4
+);
 
 
-/* =========================
-   ПРЕПЯТСТВИЯ
-========================= */
+/* =========================================================
+   ЛЕДЯНЫЕ СТОЛБЫ
+========================================================= */
 
-platform(0,1,-10,2,1,1.5,mats.red);
-platform(4,2,-19,2,2,1.4,mats.red);
-platform(-2,3,-28,1.6,3,1.8,mats.red);
-platform(3,4,-37,2,1.5,1.8,mats.red);
-platform(-3,5,-47,1.5,2,1.8,mats.red);
+function iceColumn(
+  x,
+  y,
+  z,
+  height
+){
+
+  const group =
+    new THREE.Group();
+
+  group.position.set(
+    x,
+    y,
+    z
+  );
 
 
-/* =========================
+  const base =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        .8,
+        1.05,
+        height,
+        6
+      ),
+      deepIceMaterial
+    );
+
+  base.position.y =
+    height/2;
+
+  base.castShadow = true;
+  base.receiveShadow = true;
+
+  group.add(base);
+
+
+  const top =
+    new THREE.Mesh(
+      new THREE.ConeGeometry(
+        .9,
+        1.8,
+        6
+      ),
+      crystalMaterial
+    );
+
+  top.position.y =
+    height+0.7;
+
+  top.castShadow = true;
+
+  group.add(top);
+
+  scene.add(group);
+
+}
+
+
+iceColumn(-9,0,-13,5);
+iceColumn(10,0,-22,7);
+iceColumn(-10,0,-40,8);
+iceColumn(10,0,-58,6);
+iceColumn(-11,0,-80,9);
+iceColumn(11,0,-105,10);
+
+
+/* =========================================================
+   ЁЛКИ
+========================================================= */
+
+function createTree(
+  x,
+  z,
+  scale=1
+){
+
+  const group =
+    new THREE.Group();
+
+  group.position.set(
+    x,
+    0,
+    z
+  );
+
+  group.scale.setScalar(scale);
+
+
+  const trunk =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        .28,
+        .38,
+        2,
+        6
+      ),
+      darkMaterial
+    );
+
+  trunk.position.y=1;
+
+  trunk.castShadow=true;
+
+  group.add(trunk);
+
+
+  for(
+    let i=0;
+    i<3;
+    i++
+  ){
+
+    const cone =
+      new THREE.Mesh(
+        new THREE.ConeGeometry(
+          1.7-i*.3,
+          2.5,
+          7
+        ),
+        blueMaterial
+      );
+
+    cone.position.y =
+      2+i*1.35;
+
+    cone.castShadow=true;
+
+    group.add(cone);
+
+  }
+
+
+  const snow =
+    new THREE.Mesh(
+      new THREE.ConeGeometry(
+        1.75,
+        1.2,
+        7
+      ),
+      snowMaterial
+    );
+
+  snow.position.y=5.2;
+
+  snow.castShadow=true;
+
+  group.add(snow);
+
+
+  scene.add(group);
+
+}
+
+
+const treePositions = [
+
+  [-9,-5,1.1],
+  [9,-11,1],
+  [-10,-31,1.3],
+  [10,-43,1],
+  [-10,-67,1.2],
+  [11,-78,1],
+  [-10,-91,1.2],
+  [11,-104,1.1],
+  [-12,-118,1.3]
+
+];
+
+
+treePositions.forEach(
+  a=>createTree(
+    a[0],
+    a[1],
+    a[2]
+  )
+);
+
+
+/* =========================================================
    МОНЕТЫ
-========================= */
+========================================================= */
 
-[
-  [0,1,-4],
-  [4,2,-14],
-  [-2,3,-23],
-  [3,4,-32],
-  [-3,5,-41],
-  [2,6,-51],
-  [0,7,-61]
-].forEach(a=>coin(...a));
+const coins = [];
 
 
-/* =========================
+function createCoin(
+  x,
+  y,
+  z
+){
+
+  const coin =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        .42,
+        .42,
+        .13,
+        24
+      ),
+      goldMaterial
+    );
+
+  coin.rotation.x =
+    Math.PI/2;
+
+  coin.position.set(
+    x,
+    y,
+    z
+  );
+
+  coin.castShadow=true;
+
+  coin.userData.collected=false;
+
+  scene.add(coin);
+
+  coins.push(coin);
+
+}
+
+
+const coinPositions = [
+
+  [0,1.7,-3],
+  [0,1.7,-8],
+  [4,2.8,-17],
+  [-3,3.8,-27],
+  [3,4.8,-38],
+  [-3,5.8,-49],
+  [3,6.8,-60],
+  [-1,7.8,-72],
+  [2,8.8,-85],
+  [-2,9.8,-98],
+  [2,10.8,-112]
+
+];
+
+
+coinPositions.forEach(
+  p=>createCoin(
+    p[0],
+    p[1],
+    p[2]
+  )
+);
+
+
+/* =========================================================
+   ЧЕКПОИНТЫ
+========================================================= */
+
+const checkpoints = [
+  -38,
+  -72,
+  -98
+];
+
+let checkpointIndex = 0;
+
+let respawn = {
+  x:0,
+  y:1,
+  z:2
+};
+
+
+function showCheckpoint(){
+
+  const text =
+    document.getElementById(
+      'checkpointText'
+    );
+
+  text.style.opacity='1';
+
+  setTimeout(
+    ()=>{
+      text.style.opacity='0';
+    },
+    1400
+  );
+
+}
+
+
+/* =========================================================
+   ФИНИШ
+========================================================= */
+
+const finishGroup =
+  new THREE.Group();
+
+finishGroup.position.set(
+  2,
+  10,
+  -116
+);
+
+
+const finishLeft =
+  createBox(
+    -3,
+    2,
+    0,
+    1,
+    4,
+    1,
+    deepIceMaterial
+  );
+
+const finishRight =
+  createBox(
+    3,
+    2,
+    0,
+    1,
+    4,
+    1,
+    deepIceMaterial
+  );
+
+const finishTop =
+  createBox(
+    0,
+    4,
+    0,
+    7,
+    1,
+    1,
+    deepIceMaterial
+  );
+
+
+finishLeft.position.y += 10;
+finishLeft.position.z -= 116;
+finishLeft.position.x += 2;
+
+finishRight.position.y += 10;
+finishRight.position.z -= 116;
+finishRight.position.x += 2;
+
+finishTop.position.y += 14;
+finishTop.position.z -= 116;
+finishTop.position.x += 2;
+
+
+const portal =
+  new THREE.Mesh(
+    new THREE.TorusGeometry(
+      2.4,
+      .18,
+      12,
+      40
+    ),
+    crystalMaterial
+  );
+
+portal.position.set(
+  2,
+  12,
+  -116
+);
+
+portal.rotation.x =
+  Math.PI/2;
+
+scene.add(portal);
+
+
+/* =========================================================
    ИГРОК
-========================= */
+========================================================= */
 
 const player =
   new THREE.Group();
 
-const body =
-  box(
-    0,
-    1.05,
-    2,
-    1.1,
-    1.5,
-    .75,
-    mats.blue
-  );
-
-body.parent=null;
-scene.remove(body);
-player.add(body);
-
-
-const head =
-  box(
-    0,
-    2.15,
-    2,
-    .9,
-    .9,
-    .9,
-    mats.snow
-  );
-
-head.parent=null;
-scene.remove(head);
-player.add(head);
-
 
 player.position.set(
   0,
-  0,
+  1,
   2
 );
+
+
+/* тело */
+
+const body =
+  new THREE.Mesh(
+    new THREE.BoxGeometry(
+      1.05,
+      1.45,
+      .75
+    ),
+    blueMaterial
+  );
+
+body.position.y=.85;
+
+body.castShadow=true;
+
+player.add(body);
+
+
+/* голова */
+
+const head =
+  new THREE.Mesh(
+    new THREE.BoxGeometry(
+      .9,
+      .9,
+      .9
+    ),
+    snowMaterial
+  );
+
+head.position.y=2;
+
+head.castShadow=true;
+
+player.add(head);
+
+
+/* глаза */
+
+const eyeMaterial =
+  new THREE.MeshStandardMaterial({
+    color:0x102a43
+  });
+
+
+function eye(x){
+
+  const e =
+    new THREE.Mesh(
+      new THREE.BoxGeometry(
+        .12,
+        .12,
+        .05
+      ),
+      eyeMaterial
+    );
+
+  e.position.set(
+    x,
+    2.1,
+    -.45
+  );
+
+  player.add(e);
+
+}
+
+
+eye(-.18);
+eye(.18);
+
+
+/* ноги */
+
+const legMaterial =
+  new THREE.MeshStandardMaterial({
+    color:0x112b49
+  });
+
+
+const leg1 =
+  new THREE.Mesh(
+    new THREE.BoxGeometry(
+      .35,
+      .7,
+      .42
+    ),
+    legMaterial
+  );
+
+leg1.position.set(
+  -.25,
+  -.2,
+  0
+);
+
+leg1.castShadow=true;
+
+player.add(leg1);
+
+
+const leg2 =
+  leg1.clone();
+
+leg2.position.x=.25;
+
+player.add(leg2);
+
 
 scene.add(player);
 
 
-/* =========================
-   СНЕГ
-========================= */
-
-const snowGeometry =
-  new THREE.BufferGeometry();
-
-const snowCount = 900;
-
-const snowPositions = [];
-
-for(let i=0;i<snowCount;i++){
-
-  snowPositions.push(
-    (Math.random()-.5)*80,
-    Math.random()*35,
-    Math.random()*140-100
-  );
-
-}
-
-snowGeometry.setAttribute(
-  'position',
-  new THREE.Float32BufferAttribute(
-    snowPositions,
-    3
-  )
-);
-
-const snowMaterial =
-  new THREE.PointsMaterial({
-    color:0xffffff,
-    size:.18,
-    transparent:true,
-    opacity:.85
-  });
-
-const snow =
-  new THREE.Points(
-    snowGeometry,
-    snowMaterial
-  );
-
-scene.add(snow);
-
-
-/* =========================
+/* =========================================================
    УПРАВЛЕНИЕ
-========================= */
-
-let velY = 0;
-let onGround = false;
-
-let coins = 0;
-
-let start =
-  performance.now();
-
-let finished = false;
+========================================================= */
 
 const keys = {};
+
+let joystickX = 0;
+let joystickY = 0;
+
+let jumping = false;
 
 
 addEventListener(
   'keydown',
-  e => {
+  e=>{
 
     keys[
       e.key.toLowerCase()
-    ] = true;
+    ]=true;
 
-    if(e.code === 'Space')
-      keys.space = true;
+    if(e.code==='Space'){
+      keys.space=true;
+    }
 
-    if(e.key.toLowerCase()==='r')
+    if(
+      e.key.toLowerCase()==='r'
+    ){
       location.reload();
+    }
 
   }
 );
@@ -570,78 +1480,225 @@ addEventListener(
 
 addEventListener(
   'keyup',
-  e => {
+  e=>{
 
     keys[
       e.key.toLowerCase()
-    ] = false;
+    ]=false;
 
-    if(e.code === 'Space')
-      keys.space = false;
+    if(e.code==='Space'){
+      keys.space=false;
+    }
 
   }
 );
 
 
-/* =========================
-   ТЕЛЕФОН
-========================= */
+/* =========================================================
+   МОБИЛЬНЫЙ ДЖОЙСТИК
+========================================================= */
 
-function touch(
-  btn,
-  key
-){
-
-  btn.addEventListener(
-    'touchstart',
-    e => {
-
-      e.preventDefault();
-
-      keys[key] = true;
-
-    }
+const joystick =
+  document.getElementById(
+    'joystick'
   );
 
-  btn.addEventListener(
-    'touchend',
-    e => {
-
-      e.preventDefault();
-
-      keys[key] = false;
-
-    }
+const joystickInner =
+  document.getElementById(
+    'joystickInner'
   );
+
+
+let joystickActive=false;
+
+
+function updateJoystick(e){
+
+  const rect =
+    joystick.getBoundingClientRect();
+
+  const centerX =
+    rect.left +
+    rect.width/2;
+
+  const centerY =
+    rect.top +
+    rect.height/2;
+
+  let x =
+    e.clientX-centerX;
+
+  let y =
+    e.clientY-centerY;
+
+  const max =
+    rect.width/2-30;
+
+  const distance =
+    Math.sqrt(
+      x*x+y*y
+    );
+
+  if(distance>max){
+
+    x =
+      x/distance*max;
+
+    y =
+      y/distance*max;
+
+  }
+
+
+  joystickX =
+    x/max;
+
+  joystickY =
+    y/max;
+
+
+  joystickInner.style.transform =
+    `translate(${x}px,${y}px)`;
 
 }
 
-touch(
-  document.getElementById('left'),
-  'arrowleft'
+
+function resetJoystick(){
+
+  joystickActive=false;
+
+  joystickX=0;
+  joystickY=0;
+
+  joystickInner.style.transform =
+    'translate(0,0)';
+
+}
+
+
+joystick.addEventListener(
+  'pointerdown',
+  e=>{
+
+    e.preventDefault();
+
+    joystickActive=true;
+
+    joystick.setPointerCapture(
+      e.pointerId
+    );
+
+    updateJoystick(e);
+
+    startMusic();
+
+  }
 );
 
-touch(
-  document.getElementById('right'),
-  'arrowright'
+
+joystick.addEventListener(
+  'pointermove',
+  e=>{
+
+    if(
+      joystickActive
+    ){
+      updateJoystick(e);
+    }
+
+  }
 );
 
-touch(
-  document.getElementById('jump'),
-  'space'
+
+joystick.addEventListener(
+  'pointerup',
+  resetJoystick
+);
+
+joystick.addEventListener(
+  'pointercancel',
+  resetJoystick
 );
 
 
-/* =========================
+/* =========================================================
+   КНОПКА ПРЫЖКА
+========================================================= */
+
+const jumpButton =
+  document.getElementById(
+    'jumpButton'
+  );
+
+
+jumpButton.addEventListener(
+  'pointerdown',
+  e=>{
+
+    e.preventDefault();
+
+    keys.space=true;
+
+    startMusic();
+
+  }
+);
+
+
+jumpButton.addEventListener(
+  'pointerup',
+  e=>{
+
+    e.preventDefault();
+
+    keys.space=false;
+
+  }
+);
+
+
+jumpButton.addEventListener(
+  'pointercancel',
+  ()=>{
+    keys.space=false;
+  }
+);
+
+
+/* =========================================================
+   ЖИЗНИ
+========================================================= */
+
+let lives=3;
+
+let velocityY=0;
+
+let onGround=false;
+
+let invulnerable=false;
+
+let finished=false;
+
+let coinsCollected=0;
+
+let startTime=
+  performance.now();
+
+
+/* =========================================================
    МУЗЫКА
-========================= */
+========================================================= */
 
-let audioContext = null;
-let musicPlaying = false;
-let musicTimer = null;
+let audioContext=null;
+
+let musicPlaying=false;
+
+let musicTimer=null;
 
 const musicButton =
-  document.getElementById('music');
+  document.getElementById(
+    'musicButton'
+  );
 
 
 function startMusic(){
@@ -649,79 +1706,142 @@ function startMusic(){
   if(musicPlaying)
     return;
 
-  audioContext =
-    new (window.AudioContext ||
-         window.webkitAudioContext)();
 
-  const gain =
-    audioContext.createGain();
+  try{
 
-  gain.gain.value = .045;
+    audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
 
-  gain.connect(
-    audioContext.destination
-  );
 
-  const notes = [
-    261.63,
-    329.63,
-    392.00,
-    329.63,
-    293.66,
-    349.23,
-    440.00,
-    349.23
-  ];
+    audioContext.resume();
 
-  let index = 0;
 
-  function playNote(){
+    const master =
+      audioContext.createGain();
 
-    if(!musicPlaying)
-      return;
+    master.gain.value=.12;
 
-    const osc =
-      audioContext.createOscillator();
-
-    osc.type = 'sine';
-
-    osc.frequency.value =
-      notes[index];
-
-    osc.connect(gain);
-
-    osc.start();
-
-    osc.stop(
-      audioContext.currentTime+.28
+    master.connect(
+      audioContext.destination
     );
 
-    index =
-      (index+1)%notes.length;
 
-    musicTimer =
-      setTimeout(
-        playNote,
-        330
+    const notes=[
+      261.63,
+      329.63,
+      392.00,
+      329.63,
+      293.66,
+      349.23,
+      440.00,
+      349.23,
+      261.63,
+      329.63,
+      392.00,
+      523.25
+    ];
+
+
+    let noteIndex=0;
+
+
+    function play(){
+
+      if(!musicPlaying)
+        return;
+
+
+      const oscillator =
+        audioContext.createOscillator();
+
+
+      const gain =
+        audioContext.createGain();
+
+
+      oscillator.type=
+        'triangle';
+
+
+      oscillator.frequency.value=
+        notes[noteIndex];
+
+
+      gain.gain.setValueAtTime(
+        0.0001,
+        audioContext.currentTime
       );
+
+
+      gain.gain.exponentialRampToValueAtTime(
+        .16,
+        audioContext.currentTime+.025
+      );
+
+
+      gain.gain.exponentialRampToValueAtTime(
+        .0001,
+        audioContext.currentTime+.32
+      );
+
+
+      oscillator.connect(gain);
+
+      gain.connect(master);
+
+
+      oscillator.start();
+
+      oscillator.stop(
+        audioContext.currentTime+.34
+      );
+
+
+      noteIndex=
+        (noteIndex+1)%
+        notes.length;
+
+
+      musicTimer=
+        setTimeout(
+          play,
+          340
+        );
+
+    }
+
+
+    musicPlaying=true;
+
+    musicButton.textContent=
+      '🔊 Музыка';
+
+    play();
+
+  }catch(error){
+
+    console.log(
+      'Music error:',
+      error
+    );
+
   }
 
-  musicPlaying = true;
-
-  musicButton.textContent =
-    '🔊 Музыка';
-
-  playNote();
 }
 
 
 function stopMusic(){
 
-  musicPlaying = false;
+  musicPlaying=false;
 
-  clearTimeout(musicTimer);
+  clearTimeout(
+    musicTimer
+  );
 
-  musicButton.textContent =
+  musicButton.textContent=
     '🔇 Музыка';
 
 }
@@ -729,20 +1849,400 @@ function stopMusic(){
 
 musicButton.addEventListener(
   'click',
-  () => {
+  ()=>{
 
-    if(musicPlaying)
+    if(musicPlaying){
+
       stopMusic();
-    else
+
+    }else{
+
       startMusic();
+
+    }
 
   }
 );
 
 
-/* =========================
-   ИГРОВОЙ ЦИКЛ
-========================= */
+/* =========================================================
+   ПЕРЕЗАПУСК
+========================================================= */
+
+document
+  .getElementById(
+    'restartButton'
+  )
+  .addEventListener(
+    'click',
+    ()=>{
+      location.reload();
+    }
+  );
+
+
+/* =========================================================
+   СОБЫТИЕ ПОЛУЧЕНИЯ УРОНА
+========================================================= */
+
+function damage(){
+
+  if(invulnerable)
+    return;
+
+
+  lives--;
+
+  document.getElementById(
+    'lives'
+  ).textContent=lives;
+
+
+  if(lives<=0){
+
+    gameOver();
+
+    return;
+
+  }
+
+
+  invulnerable=true;
+
+  player.position.set(
+    respawn.x,
+    respawn.y,
+    respawn.z
+  );
+
+
+  player.visible=false;
+
+
+  let flashes=0;
+
+
+  const interval =
+    setInterval(
+      ()=>{
+
+        player.visible=
+          !player.visible;
+
+        flashes++;
+
+
+        if(flashes>8){
+
+          clearInterval(
+            interval
+          );
+
+          player.visible=true;
+
+          invulnerable=false;
+
+        }
+
+      },
+      120
+    );
+
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function gameOver(){
+
+  finished=true;
+
+  document.getElementById(
+    'messageTitle'
+  ).textContent=
+    '💥 Игра окончена';
+
+
+  document.getElementById(
+    'messageText'
+  ).textContent=
+    'Монеты: '+
+    coinsCollected;
+
+
+  document.getElementById(
+    'message'
+  ).style.display=
+    'block';
+
+}
+
+
+/* =========================================================
+   ПОБЕДА
+========================================================= */
+
+function victory(){
+
+  finished=true;
+
+  document.getElementById(
+    'messageTitle'
+  ).textContent=
+    '🏆 ПОБЕДА!';
+
+
+  const elapsed =
+    (
+      performance.now()-
+      startTime
+    )/1000;
+
+
+  document.getElementById(
+    'messageText'
+  ).innerHTML=
+    'Ты прошёл зимний паркур!<br><br>'+
+    '🪙 Монеты: '+
+    coinsCollected+
+    '<br>'+
+    '⏱ Время: '+
+    elapsed.toFixed(1)+
+    ' сек.';
+
+
+  document.getElementById(
+    'message'
+  ).style.display=
+    'block';
+
+}
+
+
+/* =========================================================
+   ПРОВЕРКА ЗЕМЛИ
+========================================================= */
+
+function checkPlatforms(){
+
+  onGround=false;
+
+
+  for(
+    const p of platforms
+  ){
+
+    const halfW=
+      p.width/2;
+
+    const halfD=
+      p.depth/2;
+
+
+    const top=
+      p.object.position.y+
+      p.height/2;
+
+
+    const insideX=
+      player.position.x>
+      p.object.position.x-
+      halfW-.45 &&
+
+      player.position.x<
+      p.object.position.x+
+      halfW+.45;
+
+
+    const insideZ=
+      player.position.z>
+      p.object.position.z-
+      halfD-.45 &&
+
+      player.position.z<
+      p.object.position.z+
+      halfD+.45;
+
+
+    if(
+      insideX &&
+      insideZ &&
+      player.position.y<=
+      top+1.0 &&
+      player.position.y>=
+      top-.8 &&
+      velocityY<=0
+    ){
+
+      player.position.y=
+        top;
+
+      velocityY=0;
+
+      onGround=true;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ПРОВЕРКА ЧЕКПОИНТА
+========================================================= */
+
+function checkCheckpoint(){
+
+  if(
+    checkpointIndex<
+    checkpoints.length
+  ){
+
+    const target=
+      checkpoints[
+        checkpointIndex
+      ];
+
+
+    if(
+      player.position.z<
+      target
+    ){
+
+      checkpointIndex++;
+
+
+      respawn={
+        x:player.position.x,
+        y:player.position.y+1,
+        z:player.position.z+2
+      };
+
+
+      showCheckpoint();
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ПРОВЕРКА МОНЕТ
+========================================================= */
+
+function checkCoins(){
+
+  for(
+    const coin of coins
+  ){
+
+    if(
+      coin.userData.collected
+    )
+      continue;
+
+
+    coin.rotation.y+=.08;
+
+    coin.rotation.z+=.025;
+
+
+    const distance=
+      coin.position.distanceTo(
+        player.position
+      );
+
+
+    if(distance<1.35){
+
+      coin.userData.collected=
+        true;
+
+      coin.visible=false;
+
+      coinsCollected++;
+
+
+      document.getElementById(
+        'coins'
+      ).textContent=
+        coinsCollected;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ПРОВЕРКА ПРЕПЯТСТВИЙ
+========================================================= */
+
+const hazards =
+  scene.children.filter(
+    object=>
+      object.userData &&
+      object.userData.hazard
+  );
+
+
+function checkHazards(){
+
+  for(
+    const hazard of hazards
+  ){
+
+    const dx=
+      Math.abs(
+        player.position.x-
+        hazard.position.x
+      );
+
+    const dz=
+      Math.abs(
+        player.position.z-
+        hazard.position.z
+      );
+
+    const dy=
+      Math.abs(
+        player.position.y-
+        hazard.position.y
+      );
+
+
+    if(
+      dx<
+      hazard.geometry.parameters.width/2+
+      .5 &&
+
+      dz<
+      hazard.geometry.parameters.depth/2+
+      .5 &&
+
+      dy<
+      hazard.geometry.parameters.height/2+
+      1
+    ){
+
+      damage();
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ДВИЖЕНИЕ
+========================================================= */
 
 const clock =
   new THREE.Clock();
@@ -753,51 +2253,21 @@ function update(){
   if(finished)
     return;
 
-  const dt =
+
+  const dt=
     Math.min(
       clock.getDelta(),
       .033
     );
 
 
-  /* АВТОМАТИЧЕСКИЙ БЕГ */
-
-  let runSpeed = 6.5;
-
-
-  /*
-     W / ↑ = ускорение
-  */
-
-  if(
-    keys.w ||
-    keys.arrowup
-  ){
-
-    runSpeed = 9;
-
-  }
+  /* --------------------------------
+     ПОВОРОТ
+  -------------------------------- */
 
 
-  /*
-     S / ↓ = торможение
-  */
-
-  if(
-    keys.s ||
-    keys.arrowdown
-  ){
-
-    runSpeed = 3;
-
-  }
-
-
-  /*
-     ← → = ПОВОРОТ
-  */
-
-  const turnSpeed = 2.4;
+  let turn=
+    joystickX;
 
 
   if(
@@ -805,8 +2275,7 @@ function update(){
     keys.a
   ){
 
-    player.rotation.y +=
-      turnSpeed*dt;
+    turn-=1;
 
   }
 
@@ -816,295 +2285,457 @@ function update(){
     keys.d
   ){
 
-    player.rotation.y -=
-      turnSpeed*dt;
+    turn+=1;
 
   }
 
 
-  /*
-     АВТОМАТИЧЕСКОЕ ДВИЖЕНИЕ
-  */
+  const turnSpeed=
+    2.7;
 
-  const direction =
+
+  player.rotation.y-=
+    turn*
+    turnSpeed*
+    dt;
+
+
+  /* --------------------------------
+     СКОРОСТЬ
+  -------------------------------- */
+
+
+  let speed=
+    6.2;
+
+
+  if(
+    joystickY<-.25
+  ){
+
+    speed=
+      8+
+      (-joystickY)*3;
+
+  }
+
+
+  if(
+    joystickY>.4
+  ){
+
+    speed=2.7;
+
+  }
+
+
+  if(
+    keys.w ||
+    keys.arrowup
+  ){
+
+    speed=9;
+
+  }
+
+
+  if(
+    keys.s ||
+    keys.arrowdown
+  ){
+
+    speed=2.8;
+
+  }
+
+
+  /* --------------------------------
+     АВТОБЕГ
+  -------------------------------- */
+
+
+  const direction=
     new THREE.Vector3(
       0,
       0,
       -1
     );
 
+
   direction.applyQuaternion(
     player.quaternion
   );
 
 
-  player.position.x +=
-    direction.x *
-    runSpeed *
-    dt;
-
-  player.position.z +=
-    direction.z *
-    runSpeed *
+  player.position.x+=
+    direction.x*
+    speed*
     dt;
 
 
-  /* ПРЫЖОК */
+  player.position.z+=
+    direction.z*
+    speed*
+    dt;
+
+
+  /* --------------------------------
+     ПРЫЖОК
+  -------------------------------- */
+
 
   if(
     keys.space &&
-    onGround
+    onGround &&
+    !jumping
   ){
 
-    velY = 8.5;
+    velocityY=
+      9;
 
-    onGround = false;
+    onGround=false;
+
+    jumping=true;
 
   }
 
 
-  /* ГРАВИТАЦИЯ */
+  if(!keys.space){
 
-  velY -=
-    22*dt;
-
-  player.position.y +=
-    velY*dt;
-
-  onGround = false;
-
-
-  /* КОЛЛИЗИИ */
-
-  for(
-    const p of platforms
-  ){
-
-    const hw =
-      p.geometry.parameters.width/2;
-
-    const hd =
-      p.geometry.parameters.depth/2;
-
-    const top =
-      p.position.y +
-      p.geometry.parameters.height/2;
-
-
-    if(
-
-      player.position.x >
-      p.position.x-hw-.45 &&
-
-      player.position.x <
-      p.position.x+hw+.45 &&
-
-      player.position.z >
-      p.position.z-hd-.45 &&
-
-      player.position.z <
-      p.position.z+hd+.45 &&
-
-      player.position.y <=
-      top+.2 &&
-
-      player.position.y >=
-      top-1.2 &&
-
-      velY<=0
-
-    ){
-
-      player.position.y =
-        top;
-
-      velY = 0;
-
-      onGround = true;
-
-    }
+    jumping=false;
 
   }
 
 
-  /* ПАДЕНИЕ */
+  /* --------------------------------
+     ГРАВИТАЦИЯ
+  -------------------------------- */
+
+
+  velocityY-=
+    23*
+    dt;
+
+
+  player.position.y+=
+    velocityY*
+    dt;
+
+
+  checkPlatforms();
+
+
+  /* --------------------------------
+     ЧЕКПОИНТЫ
+  -------------------------------- */
+
+  checkCheckpoint();
+
+
+  /* --------------------------------
+     МОНЕТЫ
+  -------------------------------- */
+
+  checkCoins();
+
+
+  /* --------------------------------
+     ОПАСНОСТИ
+  -------------------------------- */
+
+  checkHazards();
+
+
+  /* --------------------------------
+     ПАДЕНИЕ
+  -------------------------------- */
 
   if(
-    player.position.y < -8 ||
-    Math.abs(player.position.x)>30
+    player.position.y<
+    -10
   ){
 
-    location.reload();
+    damage();
 
   }
 
 
-  /* МОНЕТЫ */
+  /* --------------------------------
+     ФИНИШ
+  -------------------------------- */
 
-  for(
-    const o of scene.children
+  if(
+    player.position.z<
+    -113 &&
+    player.position.y>
+    8
   ){
 
-    if(
-      o.userData.coin &&
-      !o.userData.taken
-    ){
+    victory();
 
-      o.rotation.z +=
-        dt*5;
+  }
 
+
+  /* --------------------------------
+     АНИМАЦИЯ ИГРОКА
+  -------------------------------- */
+
+  const running=
+    Math.abs(speed)>.1;
+
+
+  if(running){
+
+    leg1.rotation.x=
+      Math.sin(
+        performance.now()*.012
+      )*.35;
+
+    leg2.rotation.x=
+      -leg1.rotation.x;
+
+  }
+
+
+  /* --------------------------------
+     АНИМАЦИЯ КРИСТАЛЛОВ
+  -------------------------------- */
+
+  scene.traverse(
+    object=>{
 
       if(
-        o.position.distanceTo(
-          player.position
-        ) < 1.3
+        object.material===
+        crystalMaterial
       ){
 
-        o.userData.taken =
-          true;
-
-        o.visible = false;
-
-        coins++;
-
-        document.getElementById(
-          'coins'
-        ).textContent = coins;
+        object.rotation.y+=
+          dt*.5;
 
       }
 
     }
-
-  }
-
-
-  /* СНЕГ */
-
-  const positions =
-    snow.geometry.attributes
-      .position.array;
+  );
 
 
-  for(
-    let i=1;
-    i<positions.length;
-    i+=3
-  ){
+  /* --------------------------------
+     СНЕГ
+  -------------------------------- */
 
-    positions[i] -=
-      dt*2.5;
-
-
-    if(
-      positions[i]<0
-    ){
-
-      positions[i]=35;
-
-    }
-
-  }
+  updateSnow(
+    dt
+  );
 
 
-  snow.geometry.attributes
-    .position.needsUpdate = true;
+  /* --------------------------------
+     КАМЕРА
+  -------------------------------- */
+
+  const cameraDistance=
+    9.5;
 
 
-  /* ФИНИШ */
+  const cameraHeight=
+    5.3;
 
-  if(
-    player.position.z < -61 &&
-    player.position.y > 6.2
-  ){
 
-    finished = true;
-
-    alert(
-      '🏆 ФИНИШ!\n\n' +
-      '🪙 Монеты: ' + coins
+  const cameraOffset=
+    new THREE.Vector3(
+      0,
+      cameraHeight,
+      cameraDistance
     );
 
-  }
+
+  cameraOffset.applyQuaternion(
+    player.quaternion
+  );
 
 
-  /* КАМЕРА */
-
-  const cameraTarget =
+  const desiredCamera=
     new THREE.Vector3(
-      player.position.x,
-      player.position.y+5.5,
-      player.position.z+10
+      player.position.x+
+      cameraOffset.x,
+
+      player.position.y+
+      cameraOffset.y,
+
+      player.position.z+
+      cameraOffset.z
     );
 
 
   camera.position.lerp(
-    cameraTarget,
-    .09
+    desiredCamera,
+    .075
   );
 
 
-  /*
-     ЛЁГКОЕ ПОКАЧИВАНИЕ
-  */
-
-  const bob =
+  const bob=
+    running
+    ?
     Math.sin(
-      performance.now()*.012
-    )*.08;
+      performance.now()*.014
+    )*.07
+    :
+    0;
 
-  camera.position.y +=
+
+  camera.position.y+=
     bob;
 
 
   camera.lookAt(
     player.position.x,
-    player.position.y+1.2,
-    player.position.z-6
+    player.position.y+1.1,
+    player.position.z-4
   );
 
 
-  /* ВРЕМЯ */
+  /* --------------------------------
+     ВРЕМЯ
+  -------------------------------- */
+
+  const elapsed=
+    (
+      performance.now()-
+      startTime
+    )/1000;
+
 
   document.getElementById(
     'time'
-  ).textContent =
-    (
-      (performance.now()-start)/1000
-    ).toFixed(1);
+  ).textContent=
+    elapsed.toFixed(1);
 
 }
 
 
-/* =========================
-   ЗАПУСК
-========================= */
+/* =========================================================
+   СНЕГ
+========================================================= */
 
-function loop(){
+const snowCount=1200;
 
-  requestAnimationFrame(loop);
+const snowPositions=[];
 
-  update();
 
-  renderer.render(
-    scene,
-    camera
+for(
+  let i=0;
+  i<snowCount;
+  i++
+){
+
+  snowPositions.push(
+
+    (Math.random()-.5)*
+    100,
+
+    Math.random()*
+    40,
+
+    Math.random()*
+    150-
+    120
+
   );
 
 }
 
-loop();
+
+const snowGeometry=
+  new THREE.BufferGeometry();
 
 
-/* =========================
-   RESIZE
-========================= */
+snowGeometry.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(
+    snowPositions,
+    3
+  )
+);
+
+
+const snowMaterialPoints=
+  new THREE.PointsMaterial({
+
+    color:0xffffff,
+
+    size:.16,
+
+    transparent:true,
+
+    opacity:.82
+
+  });
+
+
+const snowParticles=
+  new THREE.Points(
+    snowGeometry,
+    snowMaterialPoints
+  );
+
+
+scene.add(
+  snowParticles
+);
+
+
+function updateSnow(dt){
+
+  const positions=
+    snowGeometry.attributes
+      .position.array;
+
+
+  for(
+    let i=0;
+    i<positions.length;
+    i+=3
+  ){
+
+    positions[i+1]-=
+      dt*2.5;
+
+
+    positions[i]+=
+      Math.sin(
+        performance.now()*.0005+
+        i
+      )*
+      dt*
+      .25;
+
+
+    if(
+      positions[i+1]<0
+    ){
+
+      positions[i+1]=40;
+
+    }
+
+  }
+
+
+  snowGeometry.attributes
+    .position.needsUpdate=true;
+
+}
+
+
+/* =========================================================
+   resize
+========================================================= */
 
 addEventListener(
   'resize',
-  () => {
+  ()=>{
 
-    camera.aspect =
-      innerWidth/innerHeight;
+    camera.aspect=
+      innerWidth/
+      innerHeight;
 
     camera.updateProjectionMatrix();
 
@@ -1115,6 +2746,31 @@ addEventListener(
 
   }
 );
+
+
+/* =========================================================
+   ЗАПУСК
+========================================================= */
+
+function animate(){
+
+  requestAnimationFrame(
+    animate
+  );
+
+
+  update();
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
+animate();
 
 </script>
 
